@@ -1,0 +1,74 @@
+<h1>{{ heading() }}</h1>
+
+<form class="card" [formRoot]="ticketForm">
+  <div class="field">
+    <label for="title">Tytuł</label>
+    <input id="title" [formField]="ticketForm.title" />
+    <app-field-errors [field]="ticketForm.title" />
+  </div>
+
+  <div class="field">
+    <label for="description">Opis</label>
+    <textarea id="description" [formField]="ticketForm.description"></textarea>
+    <app-field-errors [field]="ticketForm.description" />
+  </div>
+
+  <div class="row">
+    <div class="field grow">
+      <label>Priorytet</label>
+      <app-priority-picker [formField]="ticketForm.priority" />
+    </div>
+    <div class="field grow">
+      <label for="status">Status</label>
+      <select id="status" [formField]="ticketForm.status">
+        @for (s of statuses; track s) {
+          <option [value]="s">{{ s | statusLabel }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="field grow">
+      <label for="assignee">Przypisany</label>
+      <select id="assignee" [formField]="ticketForm.assigneeId">
+        <option value="">brak</option>
+        @for (u of users.all(); track u.id) {
+          <option [value]="'' + u.id">{{ u.name }} ({{ u.team }})</option>
+        }
+      </select>
+      <app-field-errors [field]="ticketForm.assigneeId" />
+    </div>
+    <div class="field grow">
+      <label for="dueDate">Termin</label>
+      <input id="dueDate" type="date" [formField]="ticketForm.dueDate" />
+      <app-field-errors [field]="ticketForm.dueDate" />
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="email">E-mail zgłaszającego</label>
+    <input id="email" type="email" [formField]="ticketForm.reporterEmail" />
+    <app-field-errors [field]="ticketForm.reporterEmail" />
+  </div>
+  <div class="field">
+    <label><input type="checkbox" [formField]="ticketForm.notifyReporter" /> Powiadom zgłaszającego</label>
+  </div>
+
+  <div class="field">
+    <label>Tagi</label>
+    @for (tag of ticketForm.tags; track $index; let i = $index) {
+      <div class="row" style="margin-bottom: 6px">
+        <input [formField]="tag" />
+        <button type="button" (click)="removeTag(i)">Usuń</button>
+        <app-field-errors [field]="tag" />
+      </div>
+    }
+    <button type="button" (click)="addTag()">Dodaj tag</button>
+  </div>
+
+  <div class="row">
+    <button class="primary" type="submit" [disabled]="ticketForm().submitting() || ticketForm().pending()">Zapisz</button>
+    <a routerLink="/tickets">Anuluj</a>
+  </div>
+</form>

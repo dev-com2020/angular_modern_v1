@@ -1,0 +1,29 @@
+<div *ngIf="ticket">
+  <div class="row">
+    <h1 class="grow">#{{ ticket.id }} {{ ticket.title }}</h1>
+    <a [routerLink]="['edit']">Edytuj</a>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <app-priority-badge [priority]="ticket.priority" [dueDate]="ticket.dueDate" [showEscalation]="true"></app-priority-badge>
+      <span class="status">{{ ticket.status | statusLabel }}</span>
+      <span class="grow"></span>
+      <label for="status" style="margin: 0">Zmień status</label>
+      <select id="status" [disabled]="saving" [value]="ticket.status" (change)="changeStatus($any($event.target).value)">
+        <option *ngFor="let s of statuses" [value]="s">{{ s | statusLabel }}</option>
+      </select>
+    </div>
+    <p>{{ ticket.description }}</p>
+    <p class="muted">
+      Zgłaszający: {{ ticket.reporterEmail }} · Przypisany:
+      <ng-container *ngIf="ticket.assigneeId; else none">{{ assignee?.name || 'ładowanie...' }}</ng-container>
+      <ng-template #none>brak</ng-template>
+      · Termin: {{ ticket.dueDate ? (ticket.dueDate | date: 'dd.MM.yyyy') : '-' }}
+    </p>
+    <div><span class="tag" *ngFor="let tag of ticket.tags">{{ tag }}</span></div>
+  </div>
+
+  <!-- Ciężki panel ładowany zawsze, nawet gdy użytkownik nie przewinie strony. Kandydat na @defer. -->
+  <app-comments-panel [ticketId]="ticket.id"></app-comments-panel>
+</div>

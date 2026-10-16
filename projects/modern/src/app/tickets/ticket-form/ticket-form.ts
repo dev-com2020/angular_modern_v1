@@ -31,7 +31,7 @@ export class TicketForm {
   protected readonly users = inject(Users);
   protected readonly statuses = STATUSES;
 
-  private readonly existing = httpResource<Ticket>(() => (this.id() ? `/api/tickets/${this.id()}` : undefined));
+  protected readonly existing = httpResource<Ticket>(() => (this.id() ? `/api/tickets/${this.id()}` : undefined));
 
   /** Model resetuje się, gdy przyjdą dane z serwera (linkedSignal), a jednocześnie jest zapisywalny przez formularz. */
   protected readonly model = linkedSignal(() => (this.existing.hasValue() ? toFormModel(this.existing.value()) : emptyTicketModel()));
@@ -44,6 +44,7 @@ export class TicketForm {
         const { notifyReporter } = f().value();
         const draft = toDraft(f().value());
         const id = this.id();
+        if (id && !this.existing.hasValue()) return { kind: 'notLoaded', message: 'Dane zgłoszenia nie zostały wczytane', fieldTree: f };
         try {
           const ticket = await firstValueFrom(id ? this.api.update(id, draft) : this.api.create(draft));
           this.saved = true;

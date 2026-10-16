@@ -21,6 +21,10 @@
   }
 </div>
 
+@if (users.error()) {
+  <div class="card error">Nie udało się pobrać listy użytkowników. <button (click)="users.reload()">Ponów</button></div>
+}
+
 <div class="card">
   @if (store.error(); as error) {
     <p class="error">{{ error }} <button (click)="store.reload()">Spróbuj ponownie</button></p>

@@ -1,11 +1,15 @@
 # Ćwiczenie 3: sygnały (40 min) [podstawa]
 
+`linkedSignal` pojawia się w zadaniu dla chętnych, bo w legacy `ticketId` stanie się sygnałem dopiero w ćwiczeniu 4.
+
+W całej aplikacji "dziś" to `2026-10-17` (data zaszyta w badge, dyrektywie i fake backendzie, żeby dane były powtarzalne).
+
 ## Cel
 Zamienić "zwykłe pola + mutacje" na sygnały i stan pochodny. Przygotować kod na zoneless (ćwiczenie 5).
 
 ## Kroki
 1. **`ToastService`** (`core/toast.service.ts`): tablica `toasts` jako prywatny `signal<Toast[]>([])`, publicznie `asReadonly()`. `show()` i `dismiss()` przez `update()` z nową tablicą (bez `push`). Popraw `ToastComponent`.
-2. **`TicketDetailComponent`**: pola `ticket`, `assignee`, `saving` jako sygnały. `changeStatus()` ma tworzyć nowy obiekt (`this.ticket.set({ ...t, status })`), a nie mutować `this.ticket.status`.
+2. **`TicketDetailComponent`**: pola `ticket`, `assignee`, `saving` jako sygnały. `changeStatus()` ma tworzyć nowy obiekt (`const t = this.ticket(); ... this.ticket.set({ ...t, status })`), a nie mutować `this.ticket.status`.
 3. Dodaj `computed` `isOverdue` (termin minął i status nie jest `resolved`/`closed`) i pokaż w szablonie ostrzeżenie.
 4. **`CommentsPanelComponent`**: `comments`, `authors`, `loading`, `draft` jako sygnały. `draft` podpięty przez `[value]` i `(input)`.
 5. Dodaj w `TicketDetailComponent` `effect()`, który ustawia `document.title` na tytuł zgłoszenia. Zastanów się: czy to dobry przypadek dla `effect`? Co by było złym przypadkiem?

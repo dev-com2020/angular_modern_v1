@@ -12,8 +12,8 @@ Zmigrować API komponentów. Zobaczyć, czego schematic nie ruszy (gettery/sette
    - usuń `OnChanges` i `SimpleChanges`.
 4. `[ngClass]="priority"` zamień ręcznie na `[class]="priority()"`. Schematic `ngclass-to-class` tego nie zrobi: konwertuje tylko literały obiektów, nie wyrażenie zwracające string (sprawdzone, "Migrated 0").
 5. `highlight-overdue.directive.ts`: `@HostBinding` i `@HostListener` zamień na `host: { '[style.background]': ..., '(mouseenter)': ... }`, stan `hovered` jako sygnał, `background` jako `computed`.
-6. `CommentsPanelComponent`: `ticketId` jako `input.required<number>()`. Co zamiast `ngOnChanges` uruchomi przeładowanie? (Na razie wystarczy `effect`, w ćwiczeniu 7 zastąpi go `httpResource`.)
-7. Popraw test legacy `priority-badge.component.spec.ts`: zamiast przypisywać pola i wołać `ngOnChanges`, użyj `fixture.componentRef.setInput('priority', 'HIGH')`.
+6. `CommentsPanelComponent`: `ticketId` jest już `input.required<number>()` (zrobił to schematic). Zastąp `ngOnChanges` przez `effect(() => { const id = this.ticketId(); untracked(() => this.load(id)); })`. W ćwiczeniu 7 zastąpi go `httpResource`.
+7. Popraw test legacy `priority-badge.component.spec.ts`: zamiast przypisywać pola i wołać `ngOnChanges`, użyj `fixture.componentRef.setInput('priority', 'HIGH')`. W legacy (jeszcze z zone.js) po `setInput` wywołaj `fixture.detectChanges()`; samo `await fixture.whenStable()` wystarczy dopiero po ćwiczeniu 5.
 
 ## Kryteria ukończenia
 - [ ] Brak `@Input`, `@Output`, `EventEmitter`, `@HostBinding`, `@HostListener`, `ngOnChanges` w `shared/`.

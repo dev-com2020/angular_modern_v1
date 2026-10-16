@@ -12,7 +12,7 @@ Odczyty danych jako zasoby (`httpResource`, stabilne od v22), zależności międ
 5. Policz żądania ponownie.
 
 **B. Szczegóły zgłoszenia (20 min)**
-6. W `provideRouter(...)` dodaj `withComponentInputBinding()`. Usuń `TicketResolver` i `resolve` z trasy.
+6. W `provideRouter(...)` dodaj `withComponentInputBinding()`. Usuń resolver (po ćwiczeniu 1 funkcję `ticketResolver`) i `resolve` z trasy.
 7. W `TicketDetailComponent`: `id = input.required({ transform: numberAttribute })`, `ticket = httpResource<Ticket>(() => \`/api/tickets/${this.id()}\`)`.
 8. Przypisaną osobę pobierz zasobem zależnym:
    ```ts
@@ -26,12 +26,13 @@ Odczyty danych jako zasoby (`httpResource`, stabilne od v22), zależności międ
 11. Panel komentarzy: `httpResource` zależny od `ticketId()` zamiast `effect`/`ngOnChanges` z ćwiczenia 4.
 
 **C. Test odporności (10 min)**
-12. W konsoli `localStorage.setItem('fb.errorRate', '0.3')`, odśwież i poklikaj. Każdy ekran ma pokazać błąd i dać się ponowić. Na koniec `localStorage.clear()`.
+12. Statystyki przepisz na `httpResource` z gałęzią `@if (stats.error())` i przyciskiem `stats.reload()`.
+13. W konsoli `localStorage.setItem('fb.errorRate', '0.3')` (albo `'1'` dla pewności), odśwież i poklikaj listę, szczegóły i statystyki. Każdy z tych ekranów ma pokazać błąd i dać się ponowić. Na koniec `localStorage.clear()`.
 
 ## Kryteria ukończenia
 - [ ] Lista: 3 żądania przy wejściu (me, users, tickets), 1 przy zmianie strony.
 - [ ] Brak resolvera i `route.data.subscribe`.
-- [ ] Przy `fb.errorRate=0.3` żaden ekran nie zostaje pusty bez komunikatu.
+- [ ] Przy `fb.errorRate=1` lista, szczegóły i statystyki pokazują komunikat z przyciskiem ponowienia (formularz edycji obsłużysz w ćwiczeniu 8).
 
 ## Dla chętnych
 - Router resources (v22.2, developer preview): `resources: ctx => ({ ticket: httpResource(...) })` w definicji trasy i `withRouterResources()`. Blokujący vs `nonBlocking(...)`: kiedy który?

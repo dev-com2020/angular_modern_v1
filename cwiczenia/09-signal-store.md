@@ -4,7 +4,7 @@
 Przenieść stan listy (filtry, strona, wynik) do `signalStore` i ocenić, kiedy store się opłaca.
 
 ## Kroki
-1. `npm i @ngrx/signals` (jest już w `package.json`, sprawdź wersję zgodną z Angular 22).
+1. `npm ls @ngrx/signals`: wersja 22.0.1 jest już zainstalowana, nic nie instaluj.
 2. Utwórz `tickets.store.ts`:
    - `withState({ q, status, priority, page, pageSize })`,
    - `withProps(store => ({ _debouncedQ: debounced(() => store.q(), 300), _tickets: httpResource(...) }))`,
@@ -12,7 +12,7 @@ Przenieść stan listy (filtry, strona, wynik) do `signalStore` i ocenić, kiedy
    - `withMethods`: `setQuery`, `setStatus`, `setPriority`, `prevPage`, `nextPage`, `reload` przez `patchState`.
 3. W komponencie listy `providers: [TicketsStore]` i `store = inject(TicketsStore)`. Usuń fasadę z ćwiczenia 6.
 4. Filtry w szablonie: `[value]="store.q()"` i `(input)="store.setQuery(...)"`. Formularz `FormGroup` filtrów nie jest już potrzebny.
-5. Sprawdź: zmiana filtra resetuje stronę na 1, szybkie pisanie wysyła jedno żądanie, `@if (store.typing())` pokazuje "czekam".
+5. Sprawdź: zmiana filtra resetuje stronę na 1, szybkie pisanie wysyła jedno żądanie (zacznij od strony 1: na dalszej stronie reset strony leci od razu, a `q` dopiero po debounce, więc zobaczysz dwa żądania; dla chętnych: jak to naprawić?), `@if (store.typing())` pokazuje "czekam".
 
 ## Kryteria ukończenia
 - [ ] Brak `TicketListFacade`.

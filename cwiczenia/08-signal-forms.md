@@ -33,7 +33,8 @@ Mapa pojęć:
 8. Guard niezapisanych zmian: `ticketForm().dirty()`.
 
 ## Kryteria ukończenia
-- [ ] Brak importów z `@angular/forms` poza `@angular/forms/signals`.
+- [ ] W `ticket-form/` i `priority-picker` brak importów z `@angular/forms` poza `@angular/forms/signals` (filtry listy znikną w ćwiczeniu 9).
+- [ ] Edycja przy błędzie wczytania (`fb.errorRate=1`) pokazuje komunikat zamiast pustego formularza, a zapis jest zablokowany.
 - [ ] Pusty submit pokazuje błędy przy tytule, opisie, e-mailu.
 - [ ] Tytuł "VPN rozłącza się co 10 minut" daje błąd duplikatu (po opuszczeniu pola).
 - [ ] Priorytet `critical` bez osoby i terminu blokuje zapis.

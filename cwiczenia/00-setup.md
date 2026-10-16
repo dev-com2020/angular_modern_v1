@@ -4,7 +4,7 @@
 Uruchomić obie aplikacje i zobaczyć różnicę "na żywo", zanim zaczniemy cokolwiek zmieniać.
 
 ## Kroki
-1. `npm install`, potem w dwóch terminalach `npm run legacy` i `npm run modern`.
+1. Jeśli git nie ma Twojej tożsamości: `git config user.name "Imię Nazwisko"` i `git config user.email "ty@firma.pl"` (w tym repo). Potem `npm install`, potem w dwóch terminalach `npm run legacy` i `npm run modern`.
 2. Otwórz obie aplikacje obok siebie. Otwórz konsolę przeglądarki w obu.
 3. Na liście zgłoszeń policz żądania `[fake-backend #N]` po pierwszym wczytaniu. Zapisz obie liczby.
 4. Wejdź w szczegóły zgłoszenia #2 i ponownie policz. Zobacz w zakładce Network, kiedy pobierany jest kod panelu komentarzy w każdej z aplikacji.

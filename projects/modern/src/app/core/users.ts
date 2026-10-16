@@ -13,4 +13,9 @@ export class Users {
   readonly all = computed(() => (this.resource.hasValue() ? this.resource.value() : []));
   readonly byId = computed(() => new Map(this.all().map((u) => [u.id, u])));
   readonly loading = this.resource.isLoading;
+  readonly error = computed(() => !!this.resource.error());
+
+  reload(): void {
+    this.resource.reload();
+  }
 }

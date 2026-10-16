@@ -1,5 +1,11 @@
 <h1>{{ heading() }}</h1>
 
+@if (existing.error()) {
+  <div class="card error">Nie udało się wczytać zgłoszenia do edycji. <button type="button" (click)="existing.reload()">Ponów</button></div>
+} @else if (id() && !existing.hasValue()) {
+  <div class="card"><div class="skeleton"></div><div class="skeleton"></div></div>
+} @else {
+
 <form class="card" [formRoot]="ticketForm">
   <div class="field">
     <label for="title">Tytuł</label>
@@ -72,3 +78,4 @@
     <a routerLink="/tickets">Anuluj</a>
   </div>
 </form>
+}

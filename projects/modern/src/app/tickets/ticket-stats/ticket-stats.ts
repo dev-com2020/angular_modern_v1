@@ -9,7 +9,9 @@ import { StatusLabelPipe } from '../../shared/status-label.pipe';
   imports: [PriorityBadge, StatusLabelPipe],
   template: `
     <h1>Statystyki</h1>
-    @if (stats.hasValue()) {
+    @if (stats.error()) {
+      <div class="card error">Nie udało się pobrać statystyk. <button (click)="stats.reload()">Ponów</button></div>
+    } @else if (stats.hasValue()) {
       @let s = stats.value();
       <div class="card">
         <h2>Wg statusu</h2>

@@ -12,10 +12,13 @@ Pozbyć się NgModules i konstruktorowego DI narzędziami Angulara, a potem znal
    npx ng g @angular/core:standalone --path projects/legacy/src --mode standalone-bootstrap
    ```
 3. Uruchom aplikację i przeklikaj: lista, szczegóły #2 (przypisany, komentarze), zmiana statusu (toast), statystyki. **Coś przestało działać.** Znajdź przyczynę, zanim spojrzysz na podpowiedź.
-4. `npx ng g @angular/core:inject --path projects/legacy/src` i przejrzyj diff jednego komponentu.
-5. Zamień `TicketsModule` + `TicketsRoutingModule` na plik `tickets.routes.ts` z `Routes` i `loadChildren: () => import('./tickets/tickets.routes').then(m => m.TICKET_ROUTES)`. Usuń oba moduły.
+4. `npx ng g @angular/core:inject --path projects/legacy/src` i przejrzyj diff jednego komponentu. Uwaga: schematic przepuszcza pliki przez prettier, więc diff zawiera też zmiany formatowania.
+5. Moduły routingu:
+   - `AppRoutingModule` zamień na `app.routes.ts` + `provideRouter(routes)` w `main.ts` (usuń `importProvidersFrom(BrowserModule, AppRoutingModule)`, `BrowserModule` nie jest potrzebny),
+   - `TicketsModule` + `TicketsRoutingModule` zamień na `tickets.routes.ts` z `Routes` i `loadChildren: () => import('./tickets/tickets.routes').then(m => m.TICKET_ROUTES)`.
+   Usuń wszystkie trzy moduły.
 6. Zamień `AuthGuard`, `UnsavedChangesGuard` i `TicketResolver` na funkcje (`CanActivateFn`, `CanDeactivateFn`, `ResolveFn`) z `inject()`.
-7. Zamień `AuthTokenInterceptor` na `HttpInterceptorFn` i usuń `withInterceptorsFromDi()`.
+7. Zamień `AuthTokenInterceptor` na `HttpInterceptorFn` i usuń `withInterceptorsFromDi()`. Kolejność ma znaczenie: `withInterceptors([authTokenInterceptor, fakeBackendInterceptor])`. Fake backend nie woła `next`, więc interceptor dopisany za nim po cichu się nie wykona.
 8. Napraw test `priority-badge.component.spec.ts` (importował usunięty `SharedModule`).
 
 ## Kryteria ukończenia

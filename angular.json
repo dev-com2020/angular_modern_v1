@@ -93,7 +93,18 @@
             ],
             "styles": [
               "projects/modern/src/styles.css"
-            ]
+            ],
+            "server": "projects/modern/src/main.server.ts",
+            "outputMode": "server",
+            "security": {
+              "allowedHosts": [
+                "localhost",
+                "127.0.0.1"
+              ]
+            },
+            "ssr": {
+              "entry": "projects/modern/src/server.ts"
+            }
           },
           "configurations": {
             "production": {

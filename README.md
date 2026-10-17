@@ -35,6 +35,16 @@ localStorage.clear()                         // ustawienia domyślne
 
 Endpointy: `GET /api/tickets?q&status&priority&page&pageSize`, `GET|PUT|PATCH /api/tickets/:id`, `POST /api/tickets`, `GET|POST /api/tickets/:id/comments`, `GET /api/tickets/check-title?title&excludeId`, `GET /api/tickets/stats`, `GET /api/users`, `GET /api/users/:id`, `GET /api/me`.
 
+## Branch `dodatki-ssr-e2e`
+
+Ten branch dodaje do aplikacji `modern` **SSR** (tryby renderowania per trasa, hydratacja przyrostowa, transfer cache) oraz **testy E2E w Playwright** dla obu aplikacji, z przykładem logowania SSO. Opis: [docs/SSR.md](docs/SSR.md), [docs/E2E.md](docs/E2E.md), ćwiczenia 13 i 14.
+
+```bash
+npm run modern        # modern z SSR (dev)
+npm run modern:ssr    # build produkcyjny + serwer Node na porcie 4000
+npx playwright install chromium && npm run e2e
+```
+
 ## Ćwiczenia
 
 Instrukcje są w folderze [`cwiczenia/`](cwiczenia/README.md). Pracujemy na `projects/legacy`. Przed każdym ćwiczeniem zrób commit, żeby móc wrócić (`git stash` / `git checkout .`).

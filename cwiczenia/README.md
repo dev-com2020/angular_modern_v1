@@ -20,6 +20,8 @@ Oznaczenia: **[podstawa]** robi każdy, **[dla chętnych]** dla osób, które sk
 | 10 | 2 | Testy w Vitest (zoneless) | 30 min | [10-vitest.md](10-vitest.md) |
 | 11 | 2 | Plan migracji Twojego projektu | 30 min | [11-plan-migracji.md](11-plan-migracji.md) |
 | 12 | 2 | Nowości v22.2: `@boundary`, router resources (dla chętnych / pokaz) | 30 min | [12-nowosci-22-2.md](12-nowosci-22-2.md) |
+| 13 | dodatek | SSR (branch `dodatki-ssr-e2e`) | 30 min | [13-ssr.md](13-ssr.md) |
+| 14 | dodatek | Testy E2E w Playwright (branch `dodatki-ssr-e2e`) | 40 min | [14-e2e.md](14-e2e.md) |
 
 Zasady:
 

@@ -8,7 +8,8 @@
  *   localStorage.clear()                         // powrót do ustawień domyślnych
  * Każde żądanie jest logowane w konsoli, co pozwala policzyć zapytania (np. N+1).
  */
-import { HttpErrorResponse, HttpEvent, HttpInterceptorFn, HttpRequest, HttpResponse } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { HttpBackend, HttpErrorResponse, HttpEvent, HttpInterceptorFn, HttpRequest, HttpResponse } from '@angular/common/http';
 import { Observable, of, throwError, timer } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 import { Page, Ticket, TicketComment, TicketDraft, TicketStats, PRIORITIES, STATUSES } from './models';
@@ -140,7 +141,8 @@ function handle(req: HttpRequest<unknown>): Observable<HttpEvent<unknown>> {
 }
 
 export const fakeBackendInterceptor: HttpInterceptorFn = (req, next) => {
-  if (!req.url.startsWith('/api/')) return next(req);
+  // Na serwerze (SSR) Angular zamienia adresy względne na pełne (http://host/api/...), więc patrzymy na samą ścieżkę.
+  if (!req.url.replace(/^https?:\/\/[^/]+/, '').startsWith('/api/')) return next(req);
   const n = ++requestCounter;
   const errorRate = readNumber('fb.errorRate') ?? 0;
   // eslint-disable-next-line no-console
@@ -153,4 +155,19 @@ export const fakeBackendInterceptor: HttpInterceptorFn = (req, next) => {
 /** Liczba żądań od startu aplikacji (przydatne w ćwiczeniu o N+1 i w testach). */
 export function fakeBackendRequestCount(): number {
   return requestCounter;
+}
+
+/**
+ * Ten sam fake backend, ale jako HttpBackend (koniec łańcucha HttpClient) zamiast interceptora.
+ * Potrzebny przy SSR: transfer cache Angulara jest interceptorem "root", który działa PO interceptorach aplikacji.
+ * Interceptor, który nie woła next() (jak fakeBackendInterceptor), odcina go, więc odpowiedzi z serwera
+ * nie trafiają do HTML i przeglądarka pobiera wszystko drugi raz. Jako HttpBackend stoi za cache, jak prawdziwy serwer.
+ */
+@Injectable()
+export class FakeHttpBackend implements HttpBackend {
+  handle(req: HttpRequest<unknown>): Observable<HttpEvent<unknown>> {
+    return fakeBackendInterceptor(req, (r) =>
+      throwError(() => new HttpErrorResponse({ status: 0, statusText: 'Fake backend obsługuje tylko /api/*', url: r.url })),
+    );
+  }
 }

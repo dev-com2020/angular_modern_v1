@@ -13,6 +13,7 @@ import { ToastOutlet } from './core/toast-outlet';
         <a routerLink="/tickets" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Zgłoszenia</a>
         <a routerLink="/tickets/new" routerLinkActive="active">Nowe zgłoszenie</a>
         <a routerLink="/tickets/stats" routerLinkActive="active">Statystyki</a>
+        <a routerLink="/o-aplikacji" routerLinkActive="active">O aplikacji</a>
         <span class="spacer"></span>
         @if (auth.currentUser.hasValue()) {
           <span>{{ auth.currentUser.value().name }}</span>

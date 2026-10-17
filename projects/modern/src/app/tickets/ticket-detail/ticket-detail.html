@@ -49,7 +49,8 @@
   }
 
   <!-- Panel komentarzy ładowany leniwie: osobny chunk JS i żądanie dopiero, gdy panel wjedzie w viewport. -->
-  @defer (on viewport; prefetch on idle) {
+  <!-- SSR: hydrate on viewport = serwer renderuje panel w HTML, a jego JS ożywa dopiero po przewinięciu (hydratacja przyrostowa). -->
+  @defer (on viewport; prefetch on idle; hydrate on viewport) {
     <app-comments-panel [ticketId]="t.id" />
   } @placeholder (minimum 300ms) {
     <div class="card muted">Komentarze pojawią się po przewinięciu...</div>

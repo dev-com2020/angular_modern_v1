@@ -1,29 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PriorityBadgeComponent } from './priority-badge.component';
 
-// Test w "starym" stylu: import całego SharedModule, ręczne wywołanie ngOnChanges.
+// Ćw. 4: inputy ustawiamy przez setInput, bez ręcznego wołania hooka zmian.
 describe('PriorityBadgeComponent (legacy)', () => {
   let fixture: ComponentFixture<PriorityBadgeComponent>;
-  let component: PriorityBadgeComponent;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [PriorityBadgeComponent] }).compileComponents();
+  beforeEach(() => {
     fixture = TestBed.createComponent(PriorityBadgeComponent);
-    component = fixture.componentInstance;
   });
 
-  it('normalizuje priorytet w setterze', () => {
-    component.priority = 'CRITICAL';
-    expect(component.priority).toBe('critical');
+  it('normalizuje priorytet przez transform', () => {
+    fixture.componentRef.setInput('priority', 'CRITICAL');
+    expect(fixture.componentInstance.priority()).toBe('critical');
   });
 
-  it('pokazuje etykietę dopiero po ręcznym ngOnChanges', () => {
-    component.priority = 'high';
-    fixture.detectChanges();
-    // Pułapka: przypisanie inputu w teście NIE wywołuje ngOnChanges, więc label jest pusty.
-    expect(component.label).toBe('');
-
-    component.ngOnChanges({ priority: {} as never });
+  it('pokazuje etykietę po setInput', () => {
+    fixture.componentRef.setInput('priority', 'HIGH');
+    // Aplikacja ma jeszcze zone.js, więc test odświeża widok ręcznie (po ćw. 5 wystarczy whenStable).
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Wysoki');
   });

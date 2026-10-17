@@ -51,7 +51,7 @@
       <label for="assignee">Przypisany</label>
       <select id="assignee" formControlName="assigneeId">
         <option [ngValue]="null">brak</option>
-        @for (u of users; track u) {
+        @for (u of users; track u.id) {
           <option [ngValue]="u.id">{{ u.name }} ({{ u.team }})</option>
         }
       </select>

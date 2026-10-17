@@ -1,28 +1,25 @@
-import { Directive, HostBinding, HostListener, Input } from '@angular/core';
+import { Directive, computed, input, signal } from '@angular/core';
 
-/** Dyrektywa z @HostBinding/@HostListener, do migracji na `host: {}` i signal input. */
-@Directive({ selector: '[appHighlightOverdue]' })
+/** Ćw. 4: dekoratory hosta -> host: {}, dekorator wejścia -> input(), stan -> sygnał. */
+@Directive({
+  selector: '[appHighlightOverdue]',
+  host: {
+    '[style.background]': 'background()',
+    '(mouseenter)': 'hovered.set(true)',
+    '(mouseleave)': 'hovered.set(false)',
+  },
+})
 export class HighlightOverdueDirective {
-  @Input('appHighlightOverdue') dueDate: string | null = null;
-  @Input() status = '';
+  readonly dueDate = input<string | null>(null, { alias: 'appHighlightOverdue' });
+  readonly status = input('');
 
-  private hovered = false;
+  protected readonly hovered = signal(false);
 
-  @HostBinding('style.background')
-  get background(): string {
-    if (this.hovered) return '#f2f4f7';
-    const overdue =
-      !!this.dueDate &&
-      this.dueDate < '2026-10-17' &&
-      this.status !== 'resolved' &&
-      this.status !== 'closed';
+  protected readonly background = computed(() => {
+    if (this.hovered()) return '#f2f4f7';
+    const due = this.dueDate();
+    const status = this.status();
+    const overdue = !!due && due < '2026-10-17' && status !== 'resolved' && status !== 'closed';
     return overdue ? '#fff6f6' : '';
-  }
-
-  @HostListener('mouseenter') onEnter(): void {
-    this.hovered = true;
-  }
-  @HostListener('mouseleave') onLeave(): void {
-    this.hovered = false;
-  }
+  });
 }

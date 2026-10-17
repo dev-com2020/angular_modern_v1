@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { PRIORITIES, STATUSES, Ticket, User } from '@helpdesk/shared';
+import { PRIORITIES, STATUSES, User } from '@helpdesk/shared';
 import { UsersApiService } from '../../core/users-api.service';
 import { TicketListFacade, TicketListVm } from './ticket-list.facade';
 import { AsyncPipe, DatePipe } from '@angular/common';
@@ -61,10 +61,6 @@ export class TicketListComponent implements OnInit, OnDestroy {
         }
       });
     });
-  }
-
-  trackById(_: number, ticket: Ticket): number {
-    return ticket.id;
   }
 
   prev(vm: TicketListVm): void {

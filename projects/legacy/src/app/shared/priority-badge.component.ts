@@ -1,14 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  Output,
-  SimpleChanges,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { TicketPriority } from '@helpdesk/shared';
-import { NgClass } from '@angular/common';
 
 const LABELS: Record<TicketPriority, string> = {
   low: 'Niski',
@@ -17,57 +8,38 @@ const LABELS: Record<TicketPriority, string> = {
   critical: 'Krytyczny',
 };
 
+/** Normalizacja, która wcześniej siedziała w setterze inputu: backend czasem zwraca wielkie litery albo null. */
+export function toPriority(value: TicketPriority | string | null | undefined): TicketPriority {
+  const v = (value ?? 'medium').toString().toLowerCase();
+  return v in LABELS ? (v as TicketPriority) : 'medium';
+}
+
 /**
- * Typowy "stary" komponent prezentacyjny:
- * - @Input z getterem i setterem (normalizacja wartości),
- * - ngOnChanges do wyliczania stanu pochodnego,
- * - @Output z EventEmitter.
+ * Ćw. 4: setter -> input({ transform }), stan liczony w hooku zmian -> computed(), emiter -> output().
  */
 @Component({
   selector: 'app-priority-badge',
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <span class="badge" [ngClass]="priority" [title]="tooltip" (click)="onClick()">
-      {{ label }}
-      @if (showEscalation && escalated) {
+    <span class="badge" [class]="priority()" [title]="tooltip()" (click)="badgeClick.emit(priority())">
+      {{ label() }}
+      @if (showEscalation() && escalated()) {
         <span> ⬆</span>
       }
     </span>
   `,
-  imports: [NgClass],
 })
-export class PriorityBadgeComponent implements OnChanges {
-  private _priority: TicketPriority = 'medium';
+export class PriorityBadgeComponent {
+  readonly priority = input('medium', { transform: toPriority });
+  readonly showEscalation = input(false);
+  readonly dueDate = input<string | null>(null);
 
-  @Input()
-  set priority(value: TicketPriority | string | null | undefined) {
-    // normalizacja: backend czasem zwraca wielkie litery albo null
-    const v = (value ?? 'medium').toString().toLowerCase() as TicketPriority;
-    this._priority = v in LABELS ? v : 'medium';
-  }
-  get priority(): TicketPriority {
-    return this._priority;
-  }
+  readonly badgeClick = output<TicketPriority>();
 
-  @Input() showEscalation = false;
-  @Input() dueDate: string | null = null;
-
-  @Output() badgeClick = new EventEmitter<TicketPriority>();
-
-  label = '';
-  tooltip = '';
-  escalated = false;
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['priority'] || changes['dueDate']) {
-      this.label = LABELS[this.priority];
-      this.escalated =
-        this.priority === 'critical' || (!!this.dueDate && this.dueDate < '2026-10-17');
-      this.tooltip = this.escalated ? `${this.label}, wymaga eskalacji` : this.label;
-    }
-  }
-
-  onClick(): void {
-    this.badgeClick.emit(this.priority);
-  }
+  protected readonly label = computed(() => LABELS[this.priority()]);
+  protected readonly escalated = computed(() => {
+    const due = this.dueDate();
+    return this.priority() === 'critical' || (!!due && due < '2026-10-17');
+  });
+  protected readonly tooltip = computed(() => (this.escalated() ? `${this.label()}, wymaga eskalacji` : this.label()));
 }

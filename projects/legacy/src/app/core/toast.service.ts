@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
 export interface Toast {
   id: number;
@@ -6,23 +6,20 @@ export interface Toast {
   kind: 'info' | 'error';
 }
 
-/**
- * Celowo "zone-dependent": zwykła tablica + setTimeout.
- * Działa tylko dzięki temu, że zone.js po setTimeout odpala change detection.
- * W ćwiczeniu o zoneless ten serwis przestaje działać poprawnie.
- */
+/** Ćw. 3: sygnał zamiast mutowanej tablicy. Zapis do sygnału sam planuje odświeżenie widoku (także bez zone.js). */
 @Injectable({ providedIn: 'root' })
 export class ToastService {
-  toasts: Toast[] = [];
+  private readonly _toasts = signal<Toast[]>([]);
+  readonly toasts = this._toasts.asReadonly();
   private nextId = 1;
 
   show(text: string, kind: Toast['kind'] = 'info'): void {
     const toast = { id: this.nextId++, text, kind };
-    this.toasts.push(toast);
+    this._toasts.update((list) => [...list, toast]);
     setTimeout(() => this.dismiss(toast.id), 3000);
   }
 
   dismiss(id: number): void {
-    this.toasts = this.toasts.filter((t) => t.id !== id);
+    this._toasts.update((list) => list.filter((t) => t.id !== id));
   }
 }

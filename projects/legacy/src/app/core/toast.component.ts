@@ -6,15 +6,12 @@ import { ToastService } from './toast.service';
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="toasts">
-      @for (t of toastService.toasts; track t) {
-        <div class="toast" [class.error]="t.kind === 'error'" (click)="toastService.dismiss(t.id)">
-          {{ t.text }}
-        </div>
+      @for (t of toastService.toasts(); track t.id) {
+        <div class="toast" [class.error]="t.kind === 'error'" (click)="toastService.dismiss(t.id)">{{ t.text }}</div>
       }
     </div>
   `,
-  imports: [],
 })
 export class ToastComponent {
-  toastService = inject(ToastService);
+  protected readonly toastService = inject(ToastService);
 }

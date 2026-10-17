@@ -1,11 +1,18 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Page, Ticket, TicketComment, TicketDraft, TicketQuery, TicketStats } from '@helpdesk/shared';
+import {
+  Page,
+  Ticket,
+  TicketComment,
+  TicketDraft,
+  TicketQuery,
+  TicketStats,
+} from '@helpdesk/shared';
 
 @Injectable({ providedIn: 'root' })
 export class TicketsApiService {
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
 
   list(query: TicketQuery): Observable<Page<Ticket>> {
     let params = new HttpParams();

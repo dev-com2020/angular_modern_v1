@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { User } from '@helpdesk/shared';
 import { AuthService } from './core/auth.service';
@@ -33,9 +33,9 @@ import { ToastComponent } from './core/toast.component';
   imports: [RouterLink, RouterLinkActive, NgIf, RouterOutlet, ToastComponent, AsyncPipe],
 })
 export class AppComponent implements OnInit {
-  user$!: Observable<User | null>;
+  private auth = inject(AuthService);
 
-  constructor(private auth: AuthService) {}
+  user$!: Observable<User | null>;
 
   ngOnInit(): void {
     this.user$ = this.auth.currentUser$;

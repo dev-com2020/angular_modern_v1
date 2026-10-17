@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  inject,
+} from '@angular/core';
 import { forkJoin } from 'rxjs';
 import { TicketComment, User } from '@helpdesk/shared';
 import { TicketsApiService } from '../../core/tickets-api.service';
@@ -34,18 +41,16 @@ import { NgIf, NgFor, DatePipe } from '@angular/common';
   imports: [NgIf, NgFor, DatePipe],
 })
 export class CommentsPanelComponent implements OnChanges {
+  private api = inject(TicketsApiService);
+  private usersApi = inject(UsersApiService);
+  private auth = inject(AuthService);
+  private toast = inject(ToastService);
+
   @Input() ticketId!: number;
   comments: TicketComment[] = [];
   authors: { [id: number]: User } = {};
   loading = false;
   draft = '';
-
-  constructor(
-    private api: TicketsApiService,
-    private usersApi: UsersApiService,
-    private auth: AuthService,
-    private toast: ToastService,
-  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['ticketId']) this.load();

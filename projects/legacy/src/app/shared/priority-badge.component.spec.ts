@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { SharedModule } from './shared.module';
 import { PriorityBadgeComponent } from './priority-badge.component';
 
 // Test w "starym" stylu: import całego SharedModule, ręczne wywołanie ngOnChanges.
@@ -8,7 +7,7 @@ describe('PriorityBadgeComponent (legacy)', () => {
   let component: PriorityBadgeComponent;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [SharedModule] }).compileComponents();
+    await TestBed.configureTestingModule({ imports: [PriorityBadgeComponent] }).compileComponents();
     fixture = TestBed.createComponent(PriorityBadgeComponent);
     component = fixture.componentInstance;
   });

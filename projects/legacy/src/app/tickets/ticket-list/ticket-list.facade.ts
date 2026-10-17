@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, inject } from '@angular/core';
 import { BehaviorSubject, Observable, Subject, combineLatest } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Page, Ticket, TicketPriority, TicketStatus } from '@helpdesk/shared';
@@ -27,14 +27,26 @@ const INITIAL_FILTERS: TicketListFilters = { q: '', status: 'all', priority: 'al
  */
 @Injectable()
 export class TicketListFacade implements OnDestroy {
+  private api = inject(TicketsApiService);
+
   private readonly filters$ = new BehaviorSubject<TicketListFilters>(INITIAL_FILTERS);
   private readonly page$ = new BehaviorSubject<number>(1);
   private readonly loading$ = new BehaviorSubject<boolean>(false);
-  private readonly result$ = new BehaviorSubject<Page<Ticket>>({ items: [], total: 0, page: 1, pageSize: 10 });
+  private readonly result$ = new BehaviorSubject<Page<Ticket>>({
+    items: [],
+    total: 0,
+    page: 1,
+    pageSize: 10,
+  });
   private readonly destroy$ = new Subject<void>();
   readonly pageSize = 10;
 
-  readonly vm$: Observable<TicketListVm> = combineLatest([this.result$, this.loading$, this.filters$, this.page$]).pipe(
+  readonly vm$: Observable<TicketListVm> = combineLatest([
+    this.result$,
+    this.loading$,
+    this.filters$,
+    this.page$,
+  ]).pipe(
     map(([result, loading, filters, page]) => ({
       tickets: result.items,
       total: result.total,
@@ -45,11 +57,19 @@ export class TicketListFacade implements OnDestroy {
     })),
   );
 
-  constructor(private api: TicketsApiService) {
-    combineLatest([this.filters$.pipe(debounceTime(300), distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))), this.page$])
+  constructor() {
+    combineLatest([
+      this.filters$.pipe(
+        debounceTime(300),
+        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+      ),
+      this.page$,
+    ])
       .pipe(
         tap(() => this.loading$.next(true)),
-        switchMap(([filters, page]) => this.api.list({ ...filters, page, pageSize: this.pageSize })),
+        switchMap(([filters, page]) =>
+          this.api.list({ ...filters, page, pageSize: this.pageSize }),
+        ),
         takeUntil(this.destroy$),
       )
       .subscribe({

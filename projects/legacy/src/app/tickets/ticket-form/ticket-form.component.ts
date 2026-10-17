@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -36,6 +36,14 @@ function criticalNeedsOwner(group: AbstractControl): ValidationErrors | null {
   imports: [ReactiveFormsModule, NgIf, PriorityPickerComponent, NgFor, RouterLink, StatusLabelPipe],
 })
 export class TicketFormComponent implements OnInit, OnDestroy {
+  private fb = inject(FormBuilder);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private api = inject(TicketsApiService);
+  private usersApi = inject(UsersApiService);
+  private toast = inject(ToastService);
+  private duplicateTitle = inject(DuplicateTitleValidator);
+
   form!: FormGroup;
   users: User[] = [];
   statuses = STATUSES;
@@ -43,16 +51,6 @@ export class TicketFormComponent implements OnInit, OnDestroy {
   saving = false;
   private saved = false;
   private destroy$ = new Subject<void>();
-
-  constructor(
-    private fb: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private api: TicketsApiService,
-    private usersApi: UsersApiService,
-    private toast: ToastService,
-    private duplicateTitle: DuplicateTitleValidator,
-  ) {}
 
   get tags(): FormArray {
     return this.form.get('tags') as FormArray;

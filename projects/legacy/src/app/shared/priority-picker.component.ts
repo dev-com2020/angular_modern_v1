@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  forwardRef,
+  inject,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { PRIORITIES, TicketPriority } from '@helpdesk/shared';
 import { NgFor } from '@angular/common';
@@ -31,14 +37,14 @@ import { NgFor } from '@angular/common';
   imports: [NgFor],
 })
 export class PriorityPickerComponent implements ControlValueAccessor {
+  private cdr = inject(ChangeDetectorRef);
+
   priorities = PRIORITIES;
   value: TicketPriority | null = null;
   disabled = false;
 
   private onChange: (v: TicketPriority) => void = () => {};
   onTouched: () => void = () => {};
-
-  constructor(private cdr: ChangeDetectorRef) {}
 
   select(p: TicketPriority): void {
     this.value = p;

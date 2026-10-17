@@ -5,6 +5,7 @@ import {
   ElementRef,
   OnInit,
   ViewChild,
+  inject,
 } from '@angular/core';
 import { PRIORITIES, STATUSES, TicketStats } from '@helpdesk/shared';
 import { TicketsApiService } from '../../core/tickets-api.service';
@@ -50,12 +51,12 @@ import { StatusLabelPipe } from '../../shared/status-label.pipe';
   imports: [NgIf, NgFor, PriorityBadgeComponent, StatusLabelPipe],
 })
 export class TicketStatsComponent implements OnInit, AfterViewInit {
+  private api = inject(TicketsApiService);
+
   @ViewChild('clock') clock!: ElementRef<HTMLParagraphElement>;
   stats: TicketStats | null = null;
   statuses = STATUSES;
   priorities = PRIORITIES;
-
-  constructor(private api: TicketsApiService) {}
 
   ngOnInit(): void {
     this.api.stats().subscribe((s) => (this.stats = s));

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -40,6 +40,10 @@ import { StatusLabelPipe } from '../../shared/status-label.pipe';
   ],
 })
 export class TicketListComponent implements OnInit, OnDestroy {
+  private facade = inject(TicketListFacade);
+  private usersApi = inject(UsersApiService);
+  private fb = inject(FormBuilder);
+
   vm$: Observable<TicketListVm>;
   statuses = STATUSES;
   priorities = PRIORITIES;
@@ -50,11 +54,7 @@ export class TicketListComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor(
-    private facade: TicketListFacade,
-    private usersApi: UsersApiService,
-    private fb: FormBuilder,
-  ) {
+  constructor() {
     this.vm$ = this.facade.vm$;
   }
 

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { STATUSES, Ticket, TicketStatus, User } from '@helpdesk/shared';
@@ -27,18 +27,16 @@ import { StatusLabelPipe } from '../../shared/status-label.pipe';
   ],
 })
 export class TicketDetailComponent implements OnInit, OnDestroy {
+  private route = inject(ActivatedRoute);
+  private api = inject(TicketsApiService);
+  private usersApi = inject(UsersApiService);
+  private toast = inject(ToastService);
+
   ticket: Ticket | null = null;
   assignee: User | null = null;
   statuses = STATUSES;
   saving = false;
   private sub = new Subscription();
-
-  constructor(
-    private route: ActivatedRoute,
-    private api: TicketsApiService,
-    private usersApi: UsersApiService,
-    private toast: ToastService,
-  ) {}
 
   ngOnInit(): void {
     // Zagnieżdżone subscribe: dane z resolvera, potem osobne żądanie po użytkownika.

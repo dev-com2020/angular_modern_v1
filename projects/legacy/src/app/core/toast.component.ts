@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ToastService } from './toast.service';
 import { NgFor } from '@angular/common';
 
@@ -20,5 +20,5 @@ import { NgFor } from '@angular/common';
   imports: [NgFor],
 })
 export class ToastComponent {
-  constructor(public toastService: ToastService) {}
+  toastService = inject(ToastService);
 }

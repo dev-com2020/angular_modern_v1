@@ -16,7 +16,7 @@ Zmigrować API komponentów. Zobaczyć, czego schematic nie ruszy (gettery/sette
 7. Popraw test legacy `priority-badge.component.spec.ts`: zamiast przypisywać pola i wołać `ngOnChanges`, użyj `fixture.componentRef.setInput('priority', 'HIGH')`. W legacy (jeszcze z zone.js) po `setInput` wywołaj `fixture.detectChanges()`; samo `await fixture.whenStable()` wystarczy dopiero po ćwiczeniu 5.
 
 ## Kryteria ukończenia
-- [ ] Brak `@Input`, `@Output`, `EventEmitter`, `@HostBinding`, `@HostListener`, `ngOnChanges` w `shared/`.
+- [ ] Brak `@Input`, `@Output`, `EventEmitter`, `@HostBinding`, `@HostListener`, `ngOnChanges` w `shared/` (łącznie z komentarzami, które zostawił schematic).
 - [ ] Badge dalej normalizuje `'CRITICAL'` → `'critical'`.
 - [ ] Test badge przechodzi bez ręcznego `ngOnChanges`.
 

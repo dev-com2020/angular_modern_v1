@@ -1,0 +1,94 @@
+<h1>{{ editedId ? 'Edycja zgłoszenia #' + editedId : 'Nowe zgłoszenie' }}</h1>
+
+<form class="card" [formGroup]="form" (ngSubmit)="submit()">
+  <div class="field">
+    <label for="title">Tytuł</label>
+    <input id="title" formControlName="title" />
+    @if (form.get('title')?.pending) {
+      <div class="hint">Sprawdzam, czy tytuł jest unikalny...</div>
+    }
+    @if (form.get('title')?.touched && form.get('title')?.errors; as e) {
+      @if (e['required']) {
+        <div class="error">Tytuł jest wymagany</div>
+      }
+      @if (e['minlength']) {
+        <div class="error">Minimum {{ e['minlength'].requiredLength }} znaków</div>
+      }
+      @if (e['maxlength']) {
+        <div class="error">Maksimum {{ e['maxlength'].requiredLength }} znaków</div>
+      }
+      @if (e['duplicateTitle']) {
+        <div class="error">Zgłoszenie o takim tytule już istnieje</div>
+      }
+    }
+  </div>
+
+  <div class="field">
+    <label for="description">Opis</label>
+    <textarea id="description" formControlName="description"></textarea>
+    @if (form.get('description')?.touched && form.get('description')?.invalid) {
+      <div class="error">Opis musi mieć co najmniej 10 znaków</div>
+    }
+  </div>
+
+  <div class="row">
+    <div class="field grow">
+      <label>Priorytet</label>
+      <app-priority-picker formControlName="priority" />
+    </div>
+    <div class="field grow">
+      <label for="status">Status</label>
+      <select id="status" formControlName="status">
+        @for (s of statuses; track s) {
+          <option [value]="s">{{ s | statusLabel }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="field grow">
+      <label for="assignee">Przypisany</label>
+      <select id="assignee" formControlName="assigneeId">
+        <option [ngValue]="null">brak</option>
+        @for (u of users; track u.id) {
+          <option [ngValue]="u.id">{{ u.name }} ({{ u.team }})</option>
+        }
+      </select>
+    </div>
+    <div class="field grow">
+      <label for="dueDate">Termin</label>
+      <input id="dueDate" type="date" formControlName="dueDate" />
+    </div>
+  </div>
+  @if (form.errors?.['criticalNeedsOwner'] && form.touched) {
+    <div class="error">Krytyczne zgłoszenie wymaga osoby przypisanej i terminu</div>
+  }
+
+  <div class="field">
+    <label for="email">E-mail zgłaszającego</label>
+    <input id="email" type="email" formControlName="reporterEmail" />
+    @if (form.get('reporterEmail')?.touched && form.get('reporterEmail')?.invalid) {
+      <div class="error">Podaj poprawny e-mail</div>
+    }
+  </div>
+  <div class="field">
+    <label><input type="checkbox" formControlName="notifyReporter" /> Powiadom zgłaszającego</label>
+  </div>
+
+  <div class="field" formArrayName="tags">
+    <label>Tagi</label>
+    @for (tag of tags.controls; track tag; let i = $index) {
+      <div class="row" style="margin-bottom: 6px">
+        <input [formControlName]="i" />
+        <button type="button" (click)="removeTag(i)">Usuń</button>
+      </div>
+    }
+    <button type="button" (click)="addTag()">Dodaj tag</button>
+  </div>
+
+  <div class="row">
+    <button class="primary" type="submit" [disabled]="saving || form.pending">Zapisz</button>
+    <a routerLink="/tickets">Anuluj</a>
+  </div>
+</form>

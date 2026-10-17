@@ -26,8 +26,9 @@ Odczyty danych jako zasoby (`httpResource`, stabilne od v22), zależności międ
 11. Panel komentarzy: `httpResource` zależny od `ticketId()` zamiast `effect`/`ngOnChanges` z ćwiczenia 4.
 
 **C. Test odporności (10 min)**
-12. Statystyki przepisz na `httpResource` z gałęzią `@if (stats.error())` i przyciskiem `stats.reload()`.
-13. W konsoli `localStorage.setItem('fb.errorRate', '0.3')` (albo `'1'` dla pewności), odśwież i poklikaj listę, szczegóły i statystyki. Każdy z tych ekranów ma pokazać błąd i dać się ponowić. Na koniec `localStorage.clear()`.
+12. Lista: fasada z ćwiczenia 6 połyka błąd w `catchError`. Dodaj w niej sygnał `error` ustawiany w `catchError` i metodę `reload()` (np. licznik-sygnał czytany w `computed` źródła), a w szablonie listy komunikat z przyciskiem "Ponów".
+13. Statystyki przepisz na `httpResource` z gałęzią `@if (stats.error())` i przyciskiem `stats.reload()`.
+14. W konsoli `localStorage.setItem('fb.errorRate', '0.3')` (albo `'1'` dla pewności), odśwież i poklikaj listę, szczegóły i statystyki. Każdy z tych ekranów ma pokazać błąd i dać się ponowić. Na koniec `localStorage.clear()`.
 
 ## Kryteria ukończenia
 - [ ] Lista: 3 żądania przy wejściu (me, users, tickets), 1 przy zmianie strony.
@@ -35,8 +36,7 @@ Odczyty danych jako zasoby (`httpResource`, stabilne od v22), zależności międ
 - [ ] Przy `fb.errorRate=1` lista, szczegóły i statystyki pokazują komunikat z przyciskiem ponowienia (formularz edycji obsłużysz w ćwiczeniu 8).
 
 ## Dla chętnych
-- Router resources (v22.2, developer preview): `resources: ctx => ({ ticket: httpResource(...) })` w definicji trasy i `withRouterResources()`. Blokujący vs `nonBlocking(...)`: kiedy który?
-- `@boundary { ... } @error { ... }` (v22.2, developer preview) wokół panelu komentarzy. Rzuć wyjątek w szablonie panelu i zobacz fallback.
+- Router resources i `@boundary` (v22.2): osobne ćwiczenie [12-nowosci-22-2.md](12-nowosci-22-2.md).
 - Gdy backend nie ma endpointu "wszyscy użytkownicy": jak zrobić batch `/api/users?ids=1,2,3` z unikalnych id na stronie? (fake backend to obsługuje)
 
 ## Wzorzec

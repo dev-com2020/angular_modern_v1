@@ -8,10 +8,11 @@ import { Toasts } from '../../core/toasts';
 import { PriorityBadge } from '../../shared/priority-badge';
 import { StatusLabelPipe } from '../../shared/status-label.pipe';
 import { CommentsPanel } from '../comments-panel';
+import { SlaWidget } from './sla-widget';
 
 @Component({
   selector: 'app-ticket-detail',
-  imports: [RouterLink, DatePipe, PriorityBadge, StatusLabelPipe, CommentsPanel],
+  imports: [RouterLink, DatePipe, PriorityBadge, StatusLabelPipe, CommentsPanel, SlaWidget],
   templateUrl: './ticket-detail.html',
 })
 export class TicketDetail {

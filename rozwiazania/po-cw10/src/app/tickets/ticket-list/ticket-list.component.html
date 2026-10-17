@@ -1,0 +1,84 @@
+<h1>Zgłoszenia</h1>
+
+<div class="card">
+  <div class="row">
+    <input class="grow" type="search" placeholder="Szukaj po tytule lub tagu" [value]="store.q()" (input)="store.setQuery($any($event.target).value)" />
+    <select [value]="store.status()" (change)="onStatus($any($event.target).value)">
+      <option value="all">Wszystkie statusy</option>
+      @for (s of statuses; track s) {
+        <option [value]="s">{{ s | statusLabel }}</option>
+      }
+    </select>
+    <select [value]="store.priority()" (change)="onPriority($any($event.target).value)">
+      <option value="all">Wszystkie priorytety</option>
+      @for (p of priorities; track p) {
+        <option [value]="p">{{ p }}</option>
+      }
+    </select>
+  </div>
+  @if (store.typing()) {
+    <div class="hint">Czekam, aż skończysz pisać...</div>
+  }
+</div>
+
+@if (users.error()) {
+  <div class="card error">Nie udało się pobrać listy użytkowników. <button (click)="users.reload()">Ponów</button></div>
+}
+
+<div class="card">
+  @if (store.error(); as error) {
+    <p class="error">{{ error }} <button (click)="store.reload()">Spróbuj ponownie</button></p>
+  } @else if (store.loading()) {
+    @for (i of [1, 2, 3, 4, 5]; track i) {
+      <div class="skeleton"></div>
+    }
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Tytuł</th>
+          <th>Status</th>
+          <th>Priorytet</th>
+          <th>Przypisany</th>
+          <th>Termin</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (t of store.tickets(); track t.id) {
+          <tr [appHighlightOverdue]="t.dueDate" [status]="t.status">
+            <td>{{ t.id }}</td>
+            <td>
+              <a [routerLink]="[t.id]">{{ t.title }}</a>
+              <div>
+                @for (tag of t.tags; track tag) {
+                  <span class="tag">{{ tag }}</span>
+                }
+              </div>
+            </td>
+            <td class="status">{{ t.status | statusLabel }}</td>
+            <td><app-priority-badge [priority]="t.priority" [dueDate]="t.dueDate" [showEscalation]="true" /></td>
+            <td>
+              @if (t.assigneeId) {
+                {{ users.byId().get(t.assigneeId)?.name ?? '...' }}
+              } @else {
+                <span class="muted">nieprzypisane</span>
+              }
+            </td>
+            <td>{{ t.dueDate ? (t.dueDate | date: 'dd.MM.yyyy') : '-' }}</td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="muted">Brak zgłoszeń dla wybranych filtrów.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <div class="pager">
+      <span class="muted">{{ store.total() }} zgłoszeń</span>
+      <button (click)="store.prevPage()" [disabled]="store.page() === 1">Poprzednia</button>
+      <span>{{ store.page() }} / {{ store.pageCount() }}</span>
+      <button (click)="store.nextPage()" [disabled]="store.page() === store.pageCount()">Następna</button>
+    </div>
+  }
+</div>

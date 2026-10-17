@@ -38,6 +38,16 @@
     </div>
   </div>
 
+  <!-- @boundary (v22.2, developer preview): błąd w środku nie psuje reszty strony. -->
+  @boundary {
+    <app-sla-widget [ticket]="t" />
+  } @error (let err) {
+    <div class="card error">
+      SLA niedostępne: {{ err.message }}
+      <button (click)="$reset()">Spróbuj ponownie</button>
+    </div>
+  }
+
   <!-- Panel komentarzy ładowany leniwie: osobny chunk JS i żądanie dopiero, gdy panel wjedzie w viewport. -->
   @defer (on viewport; prefetch on idle) {
     <app-comments-panel [ticketId]="t.id" />

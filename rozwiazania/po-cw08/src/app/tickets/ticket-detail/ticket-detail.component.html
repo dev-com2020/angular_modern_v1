@@ -1,0 +1,58 @@
+@if (ticket.error()) {
+  <div class="card error">Nie udało się wczytać zgłoszenia. <button (click)="ticket.reload()">Ponów</button></div>
+} @else if (ticket.hasValue()) {
+  @let t = ticket.value();
+  <div class="row">
+    <h1 class="grow">#{{ t.id }} {{ t.title }}</h1>
+    <a [routerLink]="['edit']">Edytuj</a>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <app-priority-badge [priority]="t.priority" [dueDate]="t.dueDate" [showEscalation]="true" />
+      <span class="status">{{ t.status | statusLabel }}</span>
+      <span class="grow"></span>
+      <label for="status" style="margin: 0">Zmień status</label>
+      <select id="status" [disabled]="saving()" [value]="t.status" (change)="changeStatus($any($event.target).value)">
+        @for (s of statuses; track s) {
+          <option [value]="s">{{ s | statusLabel }}</option>
+        }
+      </select>
+    </div>
+    <p>{{ t.description }}</p>
+    <p class="muted">
+      Zgłaszający: {{ t.reporterEmail }} · Przypisany:
+      @if (!t.assigneeId) {
+        brak
+      } @else if (assignee.hasValue()) {
+        {{ assignee.value().name }}
+      } @else if (assignee.error()) {
+        nie udało się pobrać
+      } @else {
+        ładowanie...
+      }
+      · Termin: {{ t.dueDate ? (t.dueDate | date: 'dd.MM.yyyy') : '-' }}
+    </p>
+    @if (isOverdue()) {
+      <p class="error">Termin minął, zgłoszenie wymaga pilnej reakcji.</p>
+    }
+    <div>
+      @for (tag of t.tags; track tag) {
+        <span class="tag">{{ tag }}</span>
+      }
+    </div>
+  </div>
+
+  <!-- Ćw. 2: panel ładowany leniwie (osobny chunk JS, żądanie /comments dopiero w viewport). -->
+  @defer (on viewport; prefetch on idle) {
+    <app-comments-panel [ticketId]="t.id" />
+  } @placeholder (minimum 300ms) {
+    <div class="card muted">Komentarze pojawią się po przewinięciu...</div>
+  } @loading (after 100ms; minimum 300ms) {
+    <div class="card"><div class="skeleton"></div><div class="skeleton"></div></div>
+  } @error {
+    <div class="card error">Nie udało się wczytać panelu komentarzy</div>
+  }
+} @else {
+  <div class="card"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+}

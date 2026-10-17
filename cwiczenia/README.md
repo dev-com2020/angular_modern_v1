@@ -19,6 +19,7 @@ Oznaczenia: **[podstawa]** robi każdy, **[dla chętnych]** dla osób, które sk
 | 9 | 2 | NgRx Signal Store | 30 min | [09-signal-store.md](09-signal-store.md) |
 | 10 | 2 | Testy w Vitest (zoneless) | 30 min | [10-vitest.md](10-vitest.md) |
 | 11 | 2 | Plan migracji Twojego projektu | 30 min | [11-plan-migracji.md](11-plan-migracji.md) |
+| 12 | 2 | Nowości v22.2: `@boundary`, router resources (dla chętnych / pokaz) | 30 min | [12-nowosci-22-2.md](12-nowosci-22-2.md) |
 
 Zasady:
 
@@ -26,3 +27,4 @@ Zasady:
 2. Po każdym ćwiczeniu aplikacja ma się budować (`npx ng build legacy`) i działać w przeglądarce.
 3. Konsola przeglądarki pokazuje każde żądanie `[fake-backend #N]`. Liczba żądań to dobra metryka postępu.
 4. Rozwiązania wzorcowe: `projects/modern`. Zaglądaj śmiało, ale najpierw spróbuj sam.
+5. Zaległości: w [`rozwiazania/`](../rozwiazania/README.md) jest stan `projects/legacy/src` po każdym ćwiczeniu (`po-cw01` ... `po-cw12`), z instrukcją przywracania.

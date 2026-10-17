@@ -7,7 +7,7 @@ Jedno repozytorium, dwie aplikacje z tą samą funkcjonalnością:
 | Aplikacja | Port | Styl | Rola na szkoleniu |
 |---|---|---|---|
 | `projects/legacy` | 4200 | NgModules, `*ngIf/*ngFor`, `@Input/@Output`, konstruktorowe DI, view model na `BehaviorSubject`, Reactive Forms, `ControlValueAccessor`, zone.js | **To migrujemy w ćwiczeniach** |
-| `projects/modern` | 4201 | standalone, control flow, `@defer`, sygnały, signal inputs, zoneless, OnPush (domyślny w v22), `httpResource`, Signal Forms, NgRx Signal Store, `@Service` | Wzorzec docelowy, "ściąga" z rozwiązaniami |
+| `projects/modern` | 4201 | standalone, control flow, `@defer`, sygnały, signal inputs, zoneless, OnPush (domyślny w v22), `httpResource`, Signal Forms, NgRx Signal Store, `@Service`, `@boundary` i router resources (v22.2) | Wzorzec docelowy, "ściąga" z rozwiązaniami |
 | `projects/shared` | | model domeny + fake backend (interceptor HTTP) | Nie ruszamy |
 
 ## Start
@@ -40,3 +40,5 @@ Endpointy: `GET /api/tickets?q&status&priority&page&pageSize`, `GET|PUT|PATCH /a
 Instrukcje są w folderze [`cwiczenia/`](cwiczenia/README.md). Pracujemy na `projects/legacy`. Przed każdym ćwiczeniem zrób commit, żeby móc wrócić (`git stash` / `git checkout .`).
 
 Utknąłeś? Odpowiednik każdego fragmentu jest w `projects/modern`. Ścieżki podaje każde ćwiczenie.
+
+Zostałeś w tyle? W [`rozwiazania/`](rozwiazania/README.md) jest stan `projects/legacy/src` po każdym ćwiczeniu, gotowy do skopiowania.

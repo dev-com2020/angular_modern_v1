@@ -6,7 +6,7 @@ Przejść na wbudowaną składnię szablonów i odłożyć ładowanie ciężkich
 ## Kroki
 1. `npx ng g @angular/core:control-flow --path projects/legacy/src`, potem `npx ng g @angular/core:self-closing-tag --path projects/legacy/src`.
 2. Przejrzyj diff `ticket-list.component.html`. Popraw ręcznie to, co migracja zrobiła mechanicznie:
-   - `track trackById($index, t)` zamień na `track t.id` i usuń metodę `trackById`,
+   - `track trackById($index, t)` zamień na `track t.id` i usuń metodę `trackById`; migracja wpisała też `track u` / `track c` / `track t` (śledzenie po obiekcie) w formularzu, komentarzach i toastach, zamień je na `track x.id`,
    - zagnieżdżone `@if` loading/empty zamień na `@if / @else if / @else` albo `@for ... @empty`,
    - `@switch (!!t.assigneeId)` zamień na zwykłe `@if`.
 3. W `ticket-detail.component.html` użyj `@let t = ticket;` (albo `@let` na wynik `async`), żeby skrócić wyrażenia.

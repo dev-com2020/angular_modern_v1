@@ -10,7 +10,7 @@
           [priority]="ticket.priority"
           [dueDate]="ticket.dueDate"
           [showEscalation]="true"
-        ></app-priority-badge>
+        />
         <span class="status">{{ ticket.status | statusLabel }}</span>
         <span class="grow"></span>
         <label for="status" style="margin: 0">Zmień status</label>
@@ -42,6 +42,6 @@
       </div>
     </div>
     <!-- Ciężki panel ładowany zawsze, nawet gdy użytkownik nie przewinie strony. Kandydat na @defer. -->
-    <app-comments-panel [ticketId]="ticket.id"></app-comments-panel>
+    <app-comments-panel [ticketId]="ticket.id" />
   </div>
 }

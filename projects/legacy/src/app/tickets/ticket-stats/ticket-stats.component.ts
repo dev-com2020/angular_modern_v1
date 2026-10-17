@@ -38,7 +38,7 @@ import { StatusLabelPipe } from '../../shared/status-label.pipe';
           @for (p of priorities; track p) {
             <div class="stat">
               <b>{{ stats.byPriority[p] }}</b
-              ><app-priority-badge [priority]="p"></app-priority-badge>
+              ><app-priority-badge [priority]="p" />
             </div>
           }
         </div>

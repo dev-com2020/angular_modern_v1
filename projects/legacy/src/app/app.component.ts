@@ -28,9 +28,9 @@ import { ToastComponent } from './core/toast.component';
         }
         <span class="flavor">legacy</span>
       </nav>
-      <main><router-outlet></router-outlet></main>
+      <main><router-outlet /></main>
     </div>
-    <app-toast></app-toast>
+    <app-toast />
   `,
   imports: [RouterLink, RouterLinkActive, RouterOutlet, ToastComponent, AsyncPipe],
 })

@@ -16,6 +16,7 @@ import { AppComponent } from './app/app.component';
 bootstrapApplication(AppComponent, {
   providers: [
     importProvidersFrom(BrowserModule, AppRoutingModule),
+    provideZoneChangeDetection(),
     // Interceptor klasowy (DI) obok funkcyjnego fake backendu.
     provideHttpClient(withInterceptorsFromDi(), withInterceptors([fakeBackendInterceptor])),
     { provide: HTTP_INTERCEPTORS, useClass: AuthTokenInterceptor, multi: true },

@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { User } from '@helpdesk/shared';
 import { AuthService } from './core/auth.service';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { NgIf, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { ToastComponent } from './core/toast.component';
 
 @Component({
@@ -23,14 +23,16 @@ import { ToastComponent } from './core/toast.component';
         <a routerLink="/tickets/new" routerLinkActive="active">Nowe zgłoszenie</a>
         <a routerLink="/tickets/stats" routerLinkActive="active">Statystyki</a>
         <span class="spacer"></span>
-        <span *ngIf="user$ | async as user">{{ user.name }}</span>
+        @if (user$ | async; as user) {
+          <span>{{ user.name }}</span>
+        }
         <span class="flavor">legacy</span>
       </nav>
       <main><router-outlet></router-outlet></main>
     </div>
     <app-toast></app-toast>
   `,
-  imports: [RouterLink, RouterLinkActive, NgIf, RouterOutlet, ToastComponent, AsyncPipe],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, ToastComponent, AsyncPipe],
 })
 export class AppComponent implements OnInit {
   private auth = inject(AuthService);

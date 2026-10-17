@@ -17,7 +17,7 @@ import { TicketsApiService } from '../../core/tickets-api.service';
 import { UsersApiService } from '../../core/users-api.service';
 import { ToastService } from '../../core/toast.service';
 import { DuplicateTitleValidator } from './duplicate-title.validator';
-import { NgIf, NgFor } from '@angular/common';
+
 import { PriorityPickerComponent } from '../../shared/priority-picker.component';
 import { StatusLabelPipe } from '../../shared/status-label.pipe';
 
@@ -33,7 +33,7 @@ function criticalNeedsOwner(group: AbstractControl): ValidationErrors | null {
   selector: 'app-ticket-form',
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './ticket-form.component.html',
-  imports: [ReactiveFormsModule, NgIf, PriorityPickerComponent, NgFor, RouterLink, StatusLabelPipe],
+  imports: [ReactiveFormsModule, PriorityPickerComponent, RouterLink, StatusLabelPipe],
 })
 export class TicketFormComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);

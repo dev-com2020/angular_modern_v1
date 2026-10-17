@@ -5,15 +5,7 @@ import { takeUntil } from 'rxjs/operators';
 import { PRIORITIES, STATUSES, Ticket, User } from '@helpdesk/shared';
 import { UsersApiService } from '../../core/users-api.service';
 import { TicketListFacade, TicketListVm } from './ticket-list.facade';
-import {
-  NgFor,
-  NgIf,
-  NgSwitch,
-  NgSwitchCase,
-  NgSwitchDefault,
-  AsyncPipe,
-  DatePipe,
-} from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { HighlightOverdueDirective } from '../../shared/highlight-overdue.directive';
 import { RouterLink } from '@angular/router';
 import { PriorityBadgeComponent } from '../../shared/priority-badge.component';
@@ -26,14 +18,9 @@ import { StatusLabelPipe } from '../../shared/status-label.pipe';
   templateUrl: './ticket-list.component.html',
   imports: [
     ReactiveFormsModule,
-    NgFor,
-    NgIf,
     HighlightOverdueDirective,
     RouterLink,
     PriorityBadgeComponent,
-    NgSwitch,
-    NgSwitchCase,
-    NgSwitchDefault,
     AsyncPipe,
     DatePipe,
     StatusLabelPipe,

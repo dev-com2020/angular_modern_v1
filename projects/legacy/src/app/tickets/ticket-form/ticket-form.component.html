@@ -4,19 +4,31 @@
   <div class="field">
     <label for="title">Tytuł</label>
     <input id="title" formControlName="title" />
-    <div class="hint" *ngIf="form.get('title')?.pending">Sprawdzam, czy tytuł jest unikalny...</div>
-    <ng-container *ngIf="form.get('title')?.touched && form.get('title')?.errors as e">
-      <div class="error" *ngIf="e['required']">Tytuł jest wymagany</div>
-      <div class="error" *ngIf="e['minlength']">Minimum {{ e['minlength'].requiredLength }} znaków</div>
-      <div class="error" *ngIf="e['maxlength']">Maksimum {{ e['maxlength'].requiredLength }} znaków</div>
-      <div class="error" *ngIf="e['duplicateTitle']">Zgłoszenie o takim tytule już istnieje</div>
-    </ng-container>
+    @if (form.get('title')?.pending) {
+      <div class="hint">Sprawdzam, czy tytuł jest unikalny...</div>
+    }
+    @if (form.get('title')?.touched && form.get('title')?.errors; as e) {
+      @if (e['required']) {
+        <div class="error">Tytuł jest wymagany</div>
+      }
+      @if (e['minlength']) {
+        <div class="error">Minimum {{ e['minlength'].requiredLength }} znaków</div>
+      }
+      @if (e['maxlength']) {
+        <div class="error">Maksimum {{ e['maxlength'].requiredLength }} znaków</div>
+      }
+      @if (e['duplicateTitle']) {
+        <div class="error">Zgłoszenie o takim tytule już istnieje</div>
+      }
+    }
   </div>
 
   <div class="field">
     <label for="description">Opis</label>
     <textarea id="description" formControlName="description"></textarea>
-    <div class="error" *ngIf="form.get('description')?.touched && form.get('description')?.invalid">Opis musi mieć co najmniej 10 znaków</div>
+    @if (form.get('description')?.touched && form.get('description')?.invalid) {
+      <div class="error">Opis musi mieć co najmniej 10 znaków</div>
+    }
   </div>
 
   <div class="row">
@@ -27,7 +39,9 @@
     <div class="field grow">
       <label for="status">Status</label>
       <select id="status" formControlName="status">
-        <option *ngFor="let s of statuses" [value]="s">{{ s | statusLabel }}</option>
+        @for (s of statuses; track s) {
+          <option [value]="s">{{ s | statusLabel }}</option>
+        }
       </select>
     </div>
   </div>
@@ -37,7 +51,9 @@
       <label for="assignee">Przypisany</label>
       <select id="assignee" formControlName="assigneeId">
         <option [ngValue]="null">brak</option>
-        <option *ngFor="let u of users" [ngValue]="u.id">{{ u.name }} ({{ u.team }})</option>
+        @for (u of users; track u) {
+          <option [ngValue]="u.id">{{ u.name }} ({{ u.team }})</option>
+        }
       </select>
     </div>
     <div class="field grow">
@@ -45,12 +61,16 @@
       <input id="dueDate" type="date" formControlName="dueDate" />
     </div>
   </div>
-  <div class="error" *ngIf="form.errors?.['criticalNeedsOwner'] && form.touched">Krytyczne zgłoszenie wymaga osoby przypisanej i terminu</div>
+  @if (form.errors?.['criticalNeedsOwner'] && form.touched) {
+    <div class="error">Krytyczne zgłoszenie wymaga osoby przypisanej i terminu</div>
+  }
 
   <div class="field">
     <label for="email">E-mail zgłaszającego</label>
     <input id="email" type="email" formControlName="reporterEmail" />
-    <div class="error" *ngIf="form.get('reporterEmail')?.touched && form.get('reporterEmail')?.invalid">Podaj poprawny e-mail</div>
+    @if (form.get('reporterEmail')?.touched && form.get('reporterEmail')?.invalid) {
+      <div class="error">Podaj poprawny e-mail</div>
+    }
   </div>
   <div class="field">
     <label><input type="checkbox" formControlName="notifyReporter" /> Powiadom zgłaszającego</label>
@@ -58,10 +78,12 @@
 
   <div class="field" formArrayName="tags">
     <label>Tagi</label>
-    <div class="row" *ngFor="let tag of tags.controls; let i = index" style="margin-bottom: 6px">
-      <input [formControlName]="i" />
-      <button type="button" (click)="removeTag(i)">Usuń</button>
-    </div>
+    @for (tag of tags.controls; track tag; let i = $index) {
+      <div class="row" style="margin-bottom: 6px">
+        <input [formControlName]="i" />
+        <button type="button" (click)="removeTag(i)">Usuń</button>
+      </div>
+    }
     <button type="button" (click)="addTag()">Dodaj tag</button>
   </div>
 

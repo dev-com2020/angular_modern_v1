@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { PRIORITIES, STATUSES, TicketStats } from '@helpdesk/shared';
 import { TicketsApiService } from '../../core/tickets-api.service';
-import { NgIf, NgFor } from '@angular/common';
+
 import { PriorityBadgeComponent } from '../../shared/priority-badge.component';
 import { StatusLabelPipe } from '../../shared/status-label.pipe';
 
@@ -18,37 +18,43 @@ import { StatusLabelPipe } from '../../shared/status-label.pipe';
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <h1>Statystyki</h1>
-    <div class="card" *ngIf="stats; else loading">
-      <h2>Wg statusu</h2>
-      <div class="stats">
-        <div class="stat" *ngFor="let s of statuses">
-          <b>{{ stats.byStatus[s] }}</b
-          >{{ s | statusLabel }}
+    @if (stats) {
+      <div class="card">
+        <h2>Wg statusu</h2>
+        <div class="stats">
+          @for (s of statuses; track s) {
+            <div class="stat">
+              <b>{{ stats.byStatus[s] }}</b
+              >{{ s | statusLabel }}
+            </div>
+          }
+          <div class="stat">
+            <b>{{ stats.overdue }}</b
+            >Po terminie
+          </div>
         </div>
-        <div class="stat">
-          <b>{{ stats.overdue }}</b
-          >Po terminie
+        <h2 style="margin-top: 16px">Wg priorytetu</h2>
+        <div class="stats">
+          @for (p of priorities; track p) {
+            <div class="stat">
+              <b>{{ stats.byPriority[p] }}</b
+              ><app-priority-badge [priority]="p"></app-priority-badge>
+            </div>
+          }
         </div>
       </div>
-      <h2 style="margin-top: 16px">Wg priorytetu</h2>
-      <div class="stats">
-        <div class="stat" *ngFor="let p of priorities">
-          <b>{{ stats.byPriority[p] }}</b
-          ><app-priority-badge [priority]="p"></app-priority-badge>
-        </div>
-      </div>
-    </div>
-    <ng-template #loading
-      ><div class="card">
+    } @else {
+      <div class="card">
         <div class="skeleton"></div>
-        <div class="skeleton"></div></div
-    ></ng-template>
+        <div class="skeleton"></div>
+      </div>
+    }
     <div class="card">
       <h2>Odświeżono</h2>
       <p #clock class="muted"></p>
     </div>
   `,
-  imports: [NgIf, NgFor, PriorityBadgeComponent, StatusLabelPipe],
+  imports: [PriorityBadgeComponent, StatusLabelPipe],
 })
 export class TicketStatsComponent implements OnInit, AfterViewInit {
   private api = inject(TicketsApiService);

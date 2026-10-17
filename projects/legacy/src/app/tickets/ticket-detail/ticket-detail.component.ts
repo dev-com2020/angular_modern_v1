@@ -5,7 +5,7 @@ import { STATUSES, Ticket, TicketStatus, User } from '@helpdesk/shared';
 import { TicketsApiService } from '../../core/tickets-api.service';
 import { UsersApiService } from '../../core/users-api.service';
 import { ToastService } from '../../core/toast.service';
-import { NgIf, NgFor, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { PriorityBadgeComponent } from '../../shared/priority-badge.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommentsPanelComponent } from '../comments-panel/comments-panel.component';
@@ -16,10 +16,8 @@ import { StatusLabelPipe } from '../../shared/status-label.pipe';
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './ticket-detail.component.html',
   imports: [
-    NgIf,
     RouterLink,
     PriorityBadgeComponent,
-    NgFor,
     ReactiveFormsModule,
     CommentsPanelComponent,
     DatePipe,

@@ -7,7 +7,6 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { PRIORITIES, TicketPriority } from '@helpdesk/shared';
-import { NgFor } from '@angular/common';
 
 /** Własna kontrolka formularza oparta o ControlValueAccessor. */
 @Component({
@@ -22,19 +21,20 @@ import { NgFor } from '@angular/common';
   ],
   template: `
     <div class="picker" role="radiogroup">
-      <button
-        type="button"
-        *ngFor="let p of priorities"
-        [class.selected]="p === value"
-        [disabled]="disabled"
-        (click)="select(p)"
-        (blur)="onTouched()"
-      >
-        {{ p }}
-      </button>
+      @for (p of priorities; track p) {
+        <button
+          type="button"
+          [class.selected]="p === value"
+          [disabled]="disabled"
+          (click)="select(p)"
+          (blur)="onTouched()"
+        >
+          {{ p }}
+        </button>
+      }
     </div>
   `,
-  imports: [NgFor],
+  imports: [],
 })
 export class PriorityPickerComponent implements ControlValueAccessor {
   private cdr = inject(ChangeDetectorRef);

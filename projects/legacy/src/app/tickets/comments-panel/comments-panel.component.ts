@@ -12,7 +12,7 @@ import { TicketsApiService } from '../../core/tickets-api.service';
 import { UsersApiService } from '../../core/users-api.service';
 import { AuthService } from '../../core/auth.service';
 import { ToastService } from '../../core/toast.service';
-import { NgIf, NgFor, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 
 /** Panel komentarzy. Udaje "ciężki" komponent (dużo kodu, osobne żądania). */
 @Component({
@@ -21,12 +21,16 @@ import { NgIf, NgFor, DatePipe } from '@angular/common';
   template: `
     <div class="card">
       <h2>Komentarze ({{ comments.length }})</h2>
-      <div *ngIf="loading" class="skeleton"></div>
-      <div *ngFor="let c of comments" style="margin-bottom: 10px">
-        <b>{{ authors[c.authorId]?.name }}</b>
-        <span class="muted"> · {{ c.createdAt | date: 'dd.MM.yyyy HH:mm' }}</span>
-        <div>{{ c.body }}</div>
-      </div>
+      @if (loading) {
+        <div class="skeleton"></div>
+      }
+      @for (c of comments; track c) {
+        <div style="margin-bottom: 10px">
+          <b>{{ authors[c.authorId]?.name }}</b>
+          <span class="muted"> · {{ c.createdAt | date: 'dd.MM.yyyy HH:mm' }}</span>
+          <div>{{ c.body }}</div>
+        </div>
+      }
       <div class="row">
         <input
           class="grow"
@@ -38,7 +42,7 @@ import { NgIf, NgFor, DatePipe } from '@angular/common';
       </div>
     </div>
   `,
-  imports: [NgIf, NgFor, DatePipe],
+  imports: [DatePipe],
 })
 export class CommentsPanelComponent implements OnChanges {
   private api = inject(TicketsApiService);

@@ -8,7 +8,7 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { TicketPriority } from '@helpdesk/shared';
-import { NgClass, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 
 const LABELS: Record<TicketPriority, string> = {
   low: 'Niski',
@@ -28,10 +28,13 @@ const LABELS: Record<TicketPriority, string> = {
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <span class="badge" [ngClass]="priority" [title]="tooltip" (click)="onClick()">
-      {{ label }}<span *ngIf="showEscalation && escalated"> ⬆</span>
+      {{ label }}
+      @if (showEscalation && escalated) {
+        <span> ⬆</span>
+      }
     </span>
   `,
-  imports: [NgClass, NgIf],
+  imports: [NgClass],
 })
 export class PriorityBadgeComponent implements OnChanges {
   private _priority: TicketPriority = 'medium';

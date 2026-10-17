@@ -1,17 +1,43 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { PRIORITIES, STATUSES, Ticket, User } from '@helpdesk/shared';
 import { UsersApiService } from '../../core/users-api.service';
 import { TicketListFacade, TicketListVm } from './ticket-list.facade';
+import {
+  NgFor,
+  NgIf,
+  NgSwitch,
+  NgSwitchCase,
+  NgSwitchDefault,
+  AsyncPipe,
+  DatePipe,
+} from '@angular/common';
+import { HighlightOverdueDirective } from '../../shared/highlight-overdue.directive';
+import { RouterLink } from '@angular/router';
+import { PriorityBadgeComponent } from '../../shared/priority-badge.component';
+import { StatusLabelPipe } from '../../shared/status-label.pipe';
 
 @Component({
   selector: 'app-ticket-list',
-  standalone: false,
   changeDetection: ChangeDetectionStrategy.Eager,
   providers: [TicketListFacade],
   templateUrl: './ticket-list.component.html',
+  imports: [
+    ReactiveFormsModule,
+    NgFor,
+    NgIf,
+    HighlightOverdueDirective,
+    RouterLink,
+    PriorityBadgeComponent,
+    NgSwitch,
+    NgSwitchCase,
+    NgSwitchDefault,
+    AsyncPipe,
+    DatePipe,
+    StatusLabelPipe,
+  ],
 })
 export class TicketListComponent implements OnInit, OnDestroy {
   vm$: Observable<TicketListVm>;
@@ -34,7 +60,9 @@ export class TicketListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.filtersForm = this.fb.group({ q: [''], status: ['all'], priority: ['all'] });
-    this.filtersForm.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => this.facade.setFilters(value));
+    this.filtersForm.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((value) => this.facade.setFilters(value));
 
     // ANTYWZORZEC: żądanie HTTP w pętli, osobno dla każdego wiersza.
     this.vm$.pipe(takeUntil(this.destroy$)).subscribe((vm) => {

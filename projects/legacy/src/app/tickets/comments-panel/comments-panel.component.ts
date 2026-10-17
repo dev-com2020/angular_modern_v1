@@ -5,11 +5,11 @@ import { TicketsApiService } from '../../core/tickets-api.service';
 import { UsersApiService } from '../../core/users-api.service';
 import { AuthService } from '../../core/auth.service';
 import { ToastService } from '../../core/toast.service';
+import { NgIf, NgFor, DatePipe } from '@angular/common';
 
 /** Panel komentarzy. Udaje "ciężki" komponent (dużo kodu, osobne żądania). */
 @Component({
   selector: 'app-comments-panel',
-  standalone: false,
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="card">
@@ -21,11 +21,17 @@ import { ToastService } from '../../core/toast.service';
         <div>{{ c.body }}</div>
       </div>
       <div class="row">
-        <input class="grow" [value]="draft" (input)="draft = $any($event.target).value" placeholder="Dodaj komentarz" />
+        <input
+          class="grow"
+          [value]="draft"
+          (input)="draft = $any($event.target).value"
+          placeholder="Dodaj komentarz"
+        />
         <button class="primary" [disabled]="!draft.trim()" (click)="add()">Dodaj</button>
       </div>
     </div>
   `,
+  imports: [NgIf, NgFor, DatePipe],
 })
 export class CommentsPanelComponent implements OnChanges {
   @Input() ticketId!: number;

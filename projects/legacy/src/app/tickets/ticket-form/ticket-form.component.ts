@@ -1,6 +1,15 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ValidationErrors,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject } from 'rxjs';
 import { filter, switchMap, takeUntil } from 'rxjs/operators';
 import { STATUSES, Ticket, TicketDraft, User } from '@helpdesk/shared';
@@ -8,6 +17,9 @@ import { TicketsApiService } from '../../core/tickets-api.service';
 import { UsersApiService } from '../../core/users-api.service';
 import { ToastService } from '../../core/toast.service';
 import { DuplicateTitleValidator } from './duplicate-title.validator';
+import { NgIf, NgFor } from '@angular/common';
+import { PriorityPickerComponent } from '../../shared/priority-picker.component';
+import { StatusLabelPipe } from '../../shared/status-label.pipe';
 
 /** Walidator krzyżowy: krytyczne zgłoszenie musi mieć termin i osobę przypisaną. */
 function criticalNeedsOwner(group: AbstractControl): ValidationErrors | null {
@@ -19,9 +31,9 @@ function criticalNeedsOwner(group: AbstractControl): ValidationErrors | null {
 
 @Component({
   selector: 'app-ticket-form',
-  standalone: false,
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './ticket-form.component.html',
+  imports: [ReactiveFormsModule, NgIf, PriorityPickerComponent, NgFor, RouterLink, StatusLabelPipe],
 })
 export class TicketFormComponent implements OnInit, OnDestroy {
   form!: FormGroup;
@@ -49,7 +61,11 @@ export class TicketFormComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.form = this.fb.group(
       {
-        title: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(80)], [this.duplicateTitle.validate.bind(this.duplicateTitle)]],
+        title: [
+          '',
+          [Validators.required, Validators.minLength(5), Validators.maxLength(80)],
+          [this.duplicateTitle.validate.bind(this.duplicateTitle)],
+        ],
         description: ['', [Validators.required, Validators.minLength(10)]],
         status: ['open'],
         priority: ['medium', Validators.required],
@@ -112,7 +128,9 @@ export class TicketFormComponent implements OnInit, OnDestroy {
       return;
     }
     this.saving = true;
-    const { notifyReporter, ...draft } = this.form.getRawValue() as TicketDraft & { notifyReporter: boolean };
+    const { notifyReporter, ...draft } = this.form.getRawValue() as TicketDraft & {
+      notifyReporter: boolean;
+    };
     const request$ = this.editedId ? this.api.update(this.editedId, draft) : this.api.create(draft);
     request$.subscribe({
       next: (t) => {

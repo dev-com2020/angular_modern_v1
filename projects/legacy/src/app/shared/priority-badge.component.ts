@@ -1,5 +1,14 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { TicketPriority } from '@helpdesk/shared';
+import { NgClass, NgIf } from '@angular/common';
 
 const LABELS: Record<TicketPriority, string> = {
   low: 'Niski',
@@ -16,13 +25,13 @@ const LABELS: Record<TicketPriority, string> = {
  */
 @Component({
   selector: 'app-priority-badge',
-  standalone: false,
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <span class="badge" [ngClass]="priority" [title]="tooltip" (click)="onClick()">
       {{ label }}<span *ngIf="showEscalation && escalated"> ⬆</span>
     </span>
   `,
+  imports: [NgClass, NgIf],
 })
 export class PriorityBadgeComponent implements OnChanges {
   private _priority: TicketPriority = 'medium';
@@ -49,7 +58,8 @@ export class PriorityBadgeComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['priority'] || changes['dueDate']) {
       this.label = LABELS[this.priority];
-      this.escalated = this.priority === 'critical' || (!!this.dueDate && this.dueDate < '2026-10-17');
+      this.escalated =
+        this.priority === 'critical' || (!!this.dueDate && this.dueDate < '2026-10-17');
       this.tooltip = this.escalated ? `${this.label}, wymaga eskalacji` : this.label;
     }
   }

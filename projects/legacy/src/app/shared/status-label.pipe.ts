@@ -8,7 +8,7 @@ const LABELS: Record<TicketStatus, string> = {
   closed: 'Zamknięte',
 };
 
-@Pipe({ name: 'statusLabel', standalone: false })
+@Pipe({ name: 'statusLabel' })
 export class StatusLabelPipe implements PipeTransform {
   transform(value: TicketStatus | null | undefined): string {
     return value ? LABELS[value] : '';

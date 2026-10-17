@@ -1,16 +1,30 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { STATUSES, Ticket, TicketStatus, User } from '@helpdesk/shared';
 import { TicketsApiService } from '../../core/tickets-api.service';
 import { UsersApiService } from '../../core/users-api.service';
 import { ToastService } from '../../core/toast.service';
+import { NgIf, NgFor, DatePipe } from '@angular/common';
+import { PriorityBadgeComponent } from '../../shared/priority-badge.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { CommentsPanelComponent } from '../comments-panel/comments-panel.component';
+import { StatusLabelPipe } from '../../shared/status-label.pipe';
 
 @Component({
   selector: 'app-ticket-detail',
-  standalone: false,
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './ticket-detail.component.html',
+  imports: [
+    NgIf,
+    RouterLink,
+    PriorityBadgeComponent,
+    NgFor,
+    ReactiveFormsModule,
+    CommentsPanelComponent,
+    DatePipe,
+    StatusLabelPipe,
+  ],
 })
 export class TicketDetailComponent implements OnInit, OnDestroy {
   ticket: Ticket | null = null;
@@ -33,7 +47,9 @@ export class TicketDetailComponent implements OnInit, OnDestroy {
         this.ticket = data['ticket'];
         this.assignee = null;
         if (this.ticket?.assigneeId) {
-          this.sub.add(this.usersApi.getById(this.ticket.assigneeId).subscribe((u) => (this.assignee = u)));
+          this.sub.add(
+            this.usersApi.getById(this.ticket.assigneeId).subscribe((u) => (this.assignee = u)),
+          );
         }
       }),
     );

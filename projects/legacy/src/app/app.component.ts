@@ -2,17 +2,24 @@ import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { User } from '@helpdesk/shared';
 import { AuthService } from './core/auth.service';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NgIf, AsyncPipe } from '@angular/common';
+import { ToastComponent } from './core/toast.component';
 
 @Component({
   selector: 'app-root',
-  standalone: false,
   // Dodane przez migrację v22 (domyślnie jest teraz OnPush).
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="shell">
       <nav class="topbar">
         <span class="brand">Helpdesk</span>
-        <a routerLink="/tickets" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Zgłoszenia</a>
+        <a
+          routerLink="/tickets"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          >Zgłoszenia</a
+        >
         <a routerLink="/tickets/new" routerLinkActive="active">Nowe zgłoszenie</a>
         <a routerLink="/tickets/stats" routerLinkActive="active">Statystyki</a>
         <span class="spacer"></span>
@@ -23,6 +30,7 @@ import { AuthService } from './core/auth.service';
     </div>
     <app-toast></app-toast>
   `,
+  imports: [RouterLink, RouterLinkActive, NgIf, RouterOutlet, ToastComponent, AsyncPipe],
 })
 export class AppComponent implements OnInit {
   user$!: Observable<User | null>;

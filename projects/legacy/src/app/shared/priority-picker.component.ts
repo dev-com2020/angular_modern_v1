@@ -1,13 +1,19 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { PRIORITIES, TicketPriority } from '@helpdesk/shared';
+import { NgFor } from '@angular/common';
 
 /** Własna kontrolka formularza oparta o ControlValueAccessor. */
 @Component({
   selector: 'app-priority-picker',
-  standalone: false,
   changeDetection: ChangeDetectionStrategy.Eager,
-  providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => PriorityPickerComponent), multi: true }],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => PriorityPickerComponent),
+      multi: true,
+    },
+  ],
   template: `
     <div class="picker" role="radiogroup">
       <button
@@ -22,6 +28,7 @@ import { PRIORITIES, TicketPriority } from '@helpdesk/shared';
       </button>
     </div>
   `,
+  imports: [NgFor],
 })
 export class PriorityPickerComponent implements ControlValueAccessor {
   priorities = PRIORITIES;

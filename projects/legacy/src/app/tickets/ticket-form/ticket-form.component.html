@@ -1,4 +1,5 @@
-<h1>{{ editedId ? 'Edycja zgłoszenia #' + editedId : 'Nowe zgłoszenie' }}</h1>
+@let id = editedId();
+<h1>{{ id ? 'Edycja zgłoszenia #' + id : 'Nowe zgłoszenie' }}</h1>
 
 <form class="card" [formGroup]="form" (ngSubmit)="submit()">
   <div class="field">
@@ -51,7 +52,7 @@
       <label for="assignee">Przypisany</label>
       <select id="assignee" formControlName="assigneeId">
         <option [ngValue]="null">brak</option>
-        @for (u of users; track u.id) {
+        @for (u of users(); track u.id) {
           <option [ngValue]="u.id">{{ u.name }} ({{ u.team }})</option>
         }
       </select>
@@ -88,7 +89,7 @@
   </div>
 
   <div class="row">
-    <button class="primary" type="submit" [disabled]="saving || form.pending">Zapisz</button>
+    <button class="primary" type="submit" [disabled]="saving() || form.pending">Zapisz</button>
     <a routerLink="/tickets">Anuluj</a>
   </div>
 </form>

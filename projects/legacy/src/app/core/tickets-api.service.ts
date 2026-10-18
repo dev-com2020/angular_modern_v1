@@ -1,15 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {
-  Page,
-  Ticket,
-  TicketComment,
-  TicketDraft,
-  TicketQuery,
-  TicketStats,
-} from '@helpdesk/shared';
+import { Page, Ticket, TicketComment, TicketDraft, TicketQuery } from '@helpdesk/shared';
 
+// Ćw. 7: odczyty komentarzy i statystyk przeszły na httpResource w komponentach.
 @Injectable({ providedIn: 'root' })
 export class TicketsApiService {
   private http = inject(HttpClient);
@@ -39,15 +33,7 @@ export class TicketsApiService {
     return this.http.get<{ duplicate: boolean }>('/api/tickets/check-title', { params });
   }
 
-  comments(ticketId: number): Observable<TicketComment[]> {
-    return this.http.get<TicketComment[]>(`/api/tickets/${ticketId}/comments`);
-  }
-
   addComment(ticketId: number, authorId: number, body: string): Observable<TicketComment> {
     return this.http.post<TicketComment>(`/api/tickets/${ticketId}/comments`, { authorId, body });
-  }
-
-  stats(): Observable<TicketStats> {
-    return this.http.get<TicketStats>('/api/tickets/stats');
   }
 }

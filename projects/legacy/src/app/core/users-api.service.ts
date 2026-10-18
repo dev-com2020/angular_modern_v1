@@ -10,8 +10,4 @@ export class UsersApiService {
   getAll(): Observable<User[]> {
     return this.http.get<User[]>('/api/users');
   }
-
-  getById(id: number): Observable<User> {
-    return this.http.get<User>(`/api/users/${id}`);
-  }
 }

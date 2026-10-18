@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { TicketPriority } from '@helpdesk/shared';
 
 const LABELS: Record<TicketPriority, string> = {
@@ -19,7 +19,6 @@ export function toPriority(value: TicketPriority | string | null | undefined): T
  */
 @Component({
   selector: 'app-priority-badge',
-  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <span class="badge" [class]="priority()" [title]="tooltip()" (click)="badgeClick.emit(priority())">
       {{ label() }}

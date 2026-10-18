@@ -1,40 +1,24 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  forwardRef,
-  inject,
-} from '@angular/core';
+import { ChangeDetectorRef, Component, forwardRef, inject } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { PRIORITIES, TicketPriority } from '@helpdesk/shared';
 
-/** Własna kontrolka formularza oparta o ControlValueAccessor. */
+/**
+ * Własna kontrolka formularza oparta o ControlValueAccessor.
+ * Ćw. 5: działa bez zone.js, bo zmiany z zewnątrz (writeValue, setDisabledState) wołają markForCheck(),
+ * a kliknięcie to zdarzenie z szablonu, które samo oznacza widok do odświeżenia.
+ */
 @Component({
   selector: 'app-priority-picker',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => PriorityPickerComponent),
-      multi: true,
-    },
-  ],
+  providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => PriorityPickerComponent), multi: true }],
   template: `
     <div class="picker" role="radiogroup">
       @for (p of priorities; track p) {
-        <button
-          type="button"
-          [class.selected]="p === value"
-          [disabled]="disabled"
-          (click)="select(p)"
-          (blur)="onTouched()"
-        >
+        <button type="button" [class.selected]="p === value" [disabled]="disabled" (click)="select(p)" (blur)="onTouched()">
           {{ p }}
         </button>
       }
     </div>
   `,
-  imports: [],
 })
 export class PriorityPickerComponent implements ControlValueAccessor {
   private cdr = inject(ChangeDetectorRef);
@@ -64,5 +48,6 @@ export class PriorityPickerComponent implements ControlValueAccessor {
   }
   setDisabledState(isDisabled: boolean): void {
     this.disabled = isDisabled;
+    this.cdr.markForCheck();
   }
 }

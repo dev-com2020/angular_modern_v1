@@ -1,5 +1,7 @@
-@let t = ticket();
-@if (t) {
+@if (ticket.error()) {
+  <div class="card error">Nie udało się wczytać zgłoszenia. <button (click)="ticket.reload()">Ponów</button></div>
+} @else if (ticket.hasValue()) {
+  @let t = ticket.value();
   <div class="row">
     <h1 class="grow">#{{ t.id }} {{ t.title }}</h1>
     <a [routerLink]="['edit']">Edytuj</a>
@@ -20,10 +22,14 @@
     <p>{{ t.description }}</p>
     <p class="muted">
       Zgłaszający: {{ t.reporterEmail }} · Przypisany:
-      @if (t.assigneeId) {
-        {{ assignee()?.name ?? 'ładowanie...' }}
-      } @else {
+      @if (!t.assigneeId) {
         brak
+      } @else if (assignee.hasValue()) {
+        {{ assignee.value().name }}
+      } @else if (assignee.error()) {
+        nie udało się pobrać
+      } @else {
+        ładowanie...
       }
       · Termin: {{ t.dueDate ? (t.dueDate | date: 'dd.MM.yyyy') : '-' }}
     </p>
@@ -47,4 +53,6 @@
   } @error {
     <div class="card error">Nie udało się wczytać panelu komentarzy</div>
   }
+} @else {
+  <div class="card"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
 }

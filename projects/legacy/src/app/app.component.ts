@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { User } from '@helpdesk/shared';
 import { AuthService } from './core/auth.service';
@@ -8,8 +8,6 @@ import { ToastComponent } from './core/toast.component';
 
 @Component({
   selector: 'app-root',
-  // Dodane przez migrację v22 (domyślnie jest teraz OnPush).
-  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="shell">
       <nav class="topbar">

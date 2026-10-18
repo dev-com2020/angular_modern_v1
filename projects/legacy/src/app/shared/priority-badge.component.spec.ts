@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PriorityBadgeComponent } from './priority-badge.component';
 
-// Ćw. 4: inputy ustawiamy przez setInput, bez ręcznego wołania hooka zmian.
+// Ćw. 4/5: inputy przez setInput; aplikacja jest zoneless, więc wystarczy whenStable().
 describe('PriorityBadgeComponent (legacy)', () => {
   let fixture: ComponentFixture<PriorityBadgeComponent>;
 
@@ -14,10 +14,9 @@ describe('PriorityBadgeComponent (legacy)', () => {
     expect(fixture.componentInstance.priority()).toBe('critical');
   });
 
-  it('pokazuje etykietę po setInput', () => {
+  it('pokazuje etykietę po setInput', async () => {
     fixture.componentRef.setInput('priority', 'HIGH');
-    // Aplikacja ma jeszcze zone.js, więc test odświeża widok ręcznie (po ćw. 5 wystarczy whenStable).
-    fixture.detectChanges();
+    await fixture.whenStable();
     expect(fixture.nativeElement.textContent).toContain('Wysoki');
   });
 });

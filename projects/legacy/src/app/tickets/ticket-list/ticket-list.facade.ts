@@ -1,6 +1,7 @@
-import { Injectable, OnDestroy, inject } from '@angular/core';
-import { BehaviorSubject, Observable, Subject, combineLatest } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { of } from 'rxjs';
+import { catchError, debounceTime, switchMap, tap } from 'rxjs/operators';
 import { Page, Ticket, TicketPriority, TicketStatus } from '@helpdesk/shared';
 import { TicketsApiService } from '../../core/tickets-api.service';
 
@@ -10,88 +11,66 @@ export interface TicketListFilters {
   priority: TicketPriority | 'all';
 }
 
-export interface TicketListVm {
-  tickets: Ticket[];
-  total: number;
-  page: number;
-  pageCount: number;
-  loading: boolean;
-  filters: TicketListFilters;
-}
-
 const INITIAL_FILTERS: TicketListFilters = { q: '', status: 'all', priority: 'all' };
+const EMPTY_PAGE: Page<Ticket> = { items: [], total: 0, page: 1, pageSize: 10 };
 
 /**
- * Wzorzec "view model na RxJS": BehaviorSubject-y + combineLatest + vm$ | async.
- * Do przepisania na sygnały (ćwiczenie 3) i na Signal Store (ćwiczenie 9).
+ * Ćw. 6: stan wejściowy i wynik jako sygnały, RxJS tylko w środku (debounce + anulowanie przez switchMap).
+ * Bez subjectów i ręcznego sprzątania: toSignal sam kończy subskrypcję razem z komponentem.
  */
 @Injectable()
-export class TicketListFacade implements OnDestroy {
-  private api = inject(TicketsApiService);
-
-  private readonly filters$ = new BehaviorSubject<TicketListFilters>(INITIAL_FILTERS);
-  private readonly page$ = new BehaviorSubject<number>(1);
-  private readonly loading$ = new BehaviorSubject<boolean>(false);
-  private readonly result$ = new BehaviorSubject<Page<Ticket>>({
-    items: [],
-    total: 0,
-    page: 1,
-    pageSize: 10,
-  });
-  private readonly destroy$ = new Subject<void>();
+export class TicketListFacade {
+  private readonly api = inject(TicketsApiService);
   readonly pageSize = 10;
 
-  readonly vm$: Observable<TicketListVm> = combineLatest([
-    this.result$,
-    this.loading$,
-    this.filters$,
-    this.page$,
-  ]).pipe(
-    map(([result, loading, filters, page]) => ({
-      tickets: result.items,
-      total: result.total,
-      page,
-      pageCount: Math.max(1, Math.ceil(result.total / this.pageSize)),
-      loading,
-      filters,
-    })),
+  readonly filters = signal<TicketListFilters>(INITIAL_FILTERS);
+  readonly page = signal(1);
+  private readonly _loading = signal(true);
+  readonly loading = this._loading.asReadonly();
+  // Ćw. 7: błąd jako stan widoku + licznik do ponowienia żądania.
+  private readonly _error = signal<string | null>(null);
+  readonly error = this._error.asReadonly();
+  private readonly reloadCount = signal(0);
+
+  private readonly result = toSignal(
+    toObservable(computed(() => ({ filters: this.filters(), page: this.page(), reload: this.reloadCount() }))).pipe(
+      debounceTime(300),
+      tap(() => {
+        this._loading.set(true);
+        this._error.set(null);
+      }),
+      switchMap(({ filters, page }) =>
+        // catchError WEWNĄTRZ switchMap: błąd jednego żądania nie zabija całego strumienia
+        this.api.list({ ...filters, page, pageSize: this.pageSize }).pipe(
+          catchError(() => {
+            this._error.set('Nie udało się pobrać zgłoszeń');
+            return of(EMPTY_PAGE);
+          }),
+        ),
+      ),
+      tap(() => this._loading.set(false)),
+    ),
+    { initialValue: EMPTY_PAGE },
   );
 
-  constructor() {
-    combineLatest([
-      this.filters$.pipe(
-        debounceTime(300),
-        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
-      ),
-      this.page$,
-    ])
-      .pipe(
-        tap(() => this.loading$.next(true)),
-        switchMap(([filters, page]) =>
-          this.api.list({ ...filters, page, pageSize: this.pageSize }),
-        ),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (result) => {
-          this.result$.next(result);
-          this.loading$.next(false);
-        },
-        error: () => this.loading$.next(false),
-      });
-  }
+  readonly tickets = computed(() => this.result().items);
+  readonly total = computed(() => this.result().total);
+  readonly pageCount = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize)));
 
   setFilters(filters: Partial<TicketListFilters>): void {
-    this.filters$.next({ ...this.filters$.value, ...filters });
-    this.page$.next(1);
+    this.filters.update((current) => ({ ...current, ...filters }));
+    this.page.set(1);
   }
 
-  setPage(page: number): void {
-    this.page$.next(page);
+  prevPage(): void {
+    this.page.update((p) => Math.max(1, p - 1));
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+  nextPage(): void {
+    this.page.update((p) => Math.min(this.pageCount(), p + 1));
+  }
+
+  reload(): void {
+    this.reloadCount.update((n) => n + 1);
   }
 }

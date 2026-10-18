@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -31,7 +31,6 @@ function criticalNeedsOwner(group: AbstractControl): ValidationErrors | null {
 
 @Component({
   selector: 'app-ticket-form',
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './ticket-form.component.html',
   imports: [ReactiveFormsModule, PriorityPickerComponent, RouterLink, StatusLabelPipe],
 })
@@ -45,10 +44,11 @@ export class TicketFormComponent implements OnInit, OnDestroy {
   private duplicateTitle = inject(DuplicateTitleValidator);
 
   form!: FormGroup;
-  users: User[] = [];
+  // Ćw. 5: pola zmieniane w subscribe jako sygnały.
+  protected readonly users = signal<User[]>([]);
+  protected readonly editedId = signal<number | null>(null);
+  protected readonly saving = signal(false);
   statuses = STATUSES;
-  editedId: number | null = null;
-  saving = false;
   private saved = false;
   private destroy$ = new Subject<void>();
 
@@ -86,15 +86,16 @@ export class TicketFormComponent implements OnInit, OnDestroy {
         else ctrl.disable({ emitEvent: false });
       });
 
-    this.usersApi.getAll().subscribe((u) => (this.users = u));
+    this.usersApi.getAll().subscribe((u) => this.users.set(u));
 
     this.route.paramMap
       .pipe(
         filter((p) => p.has('id')),
         switchMap((p) => {
-          this.editedId = Number(p.get('id'));
-          this.duplicateTitle.excludeId = this.editedId;
-          return this.api.get(this.editedId);
+          const id = Number(p.get('id'));
+          this.editedId.set(id);
+          this.duplicateTitle.excludeId = id;
+          return this.api.get(id);
         }),
         takeUntil(this.destroy$),
       )
@@ -125,20 +126,21 @@ export class TicketFormComponent implements OnInit, OnDestroy {
       this.form.markAllAsTouched();
       return;
     }
-    this.saving = true;
+    this.saving.set(true);
     const { notifyReporter, ...draft } = this.form.getRawValue() as TicketDraft & {
       notifyReporter: boolean;
     };
-    const request$ = this.editedId ? this.api.update(this.editedId, draft) : this.api.create(draft);
+    const id = this.editedId();
+    const request$ = id ? this.api.update(id, draft) : this.api.create(draft);
     request$.subscribe({
       next: (t) => {
         this.saved = true;
-        this.saving = false;
+        this.saving.set(false);
         this.toast.show(notifyReporter ? 'Zapisano, wysłano powiadomienie' : 'Zapisano');
         this.router.navigate(['/tickets', t.id]);
       },
       error: () => {
-        this.saving = false;
+        this.saving.set(false);
         this.toast.show('Błąd zapisu', 'error');
       },
     });

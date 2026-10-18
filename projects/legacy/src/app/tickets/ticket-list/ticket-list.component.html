@@ -18,60 +18,64 @@
   </form>
 </div>
 
-@if (vm$ | async; as vm) {
-  <div class="card">
-    @if (vm.loading) {
-      @for (i of [1, 2, 3, 4, 5]; track i) {
-        <div class="skeleton"></div>
-      }
-    } @else {
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Tytuł</th>
-            <th>Status</th>
-            <th>Priorytet</th>
-            <th>Przypisany</th>
-            <th>Termin</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (t of vm.tickets; track t.id) {
-            <tr [appHighlightOverdue]="t.dueDate" [status]="t.status">
-              <td>{{ t.id }}</td>
-              <td>
-                <a [routerLink]="[t.id]">{{ t.title }}</a>
-                <div>
-                  @for (tag of t.tags; track tag) {
-                    <span class="tag">{{ tag }}</span>
-                  }
-                </div>
-              </td>
-              <td class="status">{{ t.status | statusLabel }}</td>
-              <td><app-priority-badge [priority]="t.priority" [dueDate]="t.dueDate" [showEscalation]="true" /></td>
-              <td>
-                @if (t.assigneeId) {
-                  {{ assignees[t.id]?.name || '...' }}
-                } @else {
-                  <span class="muted">nieprzypisane</span>
-                }
-              </td>
-              <td>{{ t.dueDate ? (t.dueDate | date: 'dd.MM.yyyy') : '-' }}</td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="6" class="muted">Brak zgłoszeń dla wybranych filtrów.</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-      <div class="pager">
-        <span class="muted">{{ vm.total }} zgłoszeń</span>
-        <button (click)="prev(vm)" [disabled]="vm.page === 1">Poprzednia</button>
-        <span>{{ vm.page }} / {{ vm.pageCount }}</span>
-        <button (click)="next(vm)" [disabled]="vm.page === vm.pageCount">Następna</button>
-      </div>
-    }
-  </div>
+@if (users.error()) {
+  <div class="card error">Nie udało się pobrać listy użytkowników. <button (click)="users.reload()">Ponów</button></div>
 }
+
+<div class="card">
+  @if (facade.error(); as error) {
+    <p class="error">{{ error }} <button (click)="facade.reload()">Spróbuj ponownie</button></p>
+  } @else if (facade.loading()) {
+    @for (i of [1, 2, 3, 4, 5]; track i) {
+      <div class="skeleton"></div>
+    }
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Tytuł</th>
+          <th>Status</th>
+          <th>Priorytet</th>
+          <th>Przypisany</th>
+          <th>Termin</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (t of facade.tickets(); track t.id) {
+          <tr [appHighlightOverdue]="t.dueDate" [status]="t.status">
+            <td>{{ t.id }}</td>
+            <td>
+              <a [routerLink]="[t.id]">{{ t.title }}</a>
+              <div>
+                @for (tag of t.tags; track tag) {
+                  <span class="tag">{{ tag }}</span>
+                }
+              </div>
+            </td>
+            <td class="status">{{ t.status | statusLabel }}</td>
+            <td><app-priority-badge [priority]="t.priority" [dueDate]="t.dueDate" [showEscalation]="true" /></td>
+            <td>
+              @if (t.assigneeId) {
+                {{ users.byId().get(t.assigneeId)?.name ?? '...' }}
+              } @else {
+                <span class="muted">nieprzypisane</span>
+              }
+            </td>
+            <td>{{ t.dueDate ? (t.dueDate | date: 'dd.MM.yyyy') : '-' }}</td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="muted">Brak zgłoszeń dla wybranych filtrów.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <div class="pager">
+      <span class="muted">{{ facade.total() }} zgłoszeń</span>
+      <button (click)="facade.prevPage()" [disabled]="facade.page() === 1">Poprzednia</button>
+      <span>{{ facade.page() }} / {{ facade.pageCount() }}</span>
+      <button (click)="facade.nextPage()" [disabled]="facade.page() === facade.pageCount()">Następna</button>
+    </div>
+  }
+</div>

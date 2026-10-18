@@ -1,3 +1,4 @@
+// Playwright is provided by the test runner at runtime.
 import { test as base, expect, Page } from '@playwright/test';
 
 /** Liczy żądania do fake backendu (każde loguje w konsoli "[fake-backend #N]"). */

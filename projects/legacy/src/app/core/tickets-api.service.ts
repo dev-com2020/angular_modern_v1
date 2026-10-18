@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Page, Ticket, TicketComment, TicketDraft, TicketQuery } from '@helpdesk/shared';
 
-// Ćw. 7: odczyty komentarzy i statystyk przeszły na httpResource w komponentach.
+// Ćw. 7-8: odczyty przeszły na httpResource (komponenty, walidacja HTTP), tu zostają lista i zapisy.
 @Injectable({ providedIn: 'root' })
 export class TicketsApiService {
   private http = inject(HttpClient);
@@ -16,21 +16,12 @@ export class TicketsApiService {
     return this.http.get<Page<Ticket>>('/api/tickets', { params });
   }
 
-  get(id: number): Observable<Ticket> {
-    return this.http.get<Ticket>(`/api/tickets/${id}`);
-  }
-
   create(draft: TicketDraft): Observable<Ticket> {
     return this.http.post<Ticket>('/api/tickets', draft);
   }
 
   update(id: number, draft: TicketDraft): Observable<Ticket> {
     return this.http.put<Ticket>(`/api/tickets/${id}`, draft);
-  }
-
-  checkTitle(title: string, excludeId?: number): Observable<{ duplicate: boolean }> {
-    const params = new HttpParams().set('title', title).set('excludeId', String(excludeId ?? 0));
-    return this.http.get<{ duplicate: boolean }>('/api/tickets/check-title', { params });
   }
 
   addComment(ticketId: number, authorId: number, body: string): Observable<TicketComment> {

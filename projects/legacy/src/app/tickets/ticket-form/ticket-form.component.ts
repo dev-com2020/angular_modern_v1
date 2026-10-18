@@ -1,153 +1,76 @@
-import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
-import {
-  AbstractControl,
-  FormArray,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ValidationErrors,
-  Validators,
-  ReactiveFormsModule,
-} from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Subject } from 'rxjs';
-import { filter, switchMap, takeUntil } from 'rxjs/operators';
-import { STATUSES, Ticket, TicketDraft, User } from '@helpdesk/shared';
+import { Component, computed, inject, input, linkedSignal } from '@angular/core';
+import { httpResource } from '@angular/common/http';
+import { Router, RouterLink } from '@angular/router';
+import { FormField, FormRoot, form } from '@angular/forms/signals';
+import { firstValueFrom } from 'rxjs';
+import { STATUSES, Ticket } from '@helpdesk/shared';
 import { TicketsApiService } from '../../core/tickets-api.service';
-import { UsersApiService } from '../../core/users-api.service';
 import { ToastService } from '../../core/toast.service';
-import { DuplicateTitleValidator } from './duplicate-title.validator';
-
+import { UsersStore } from '../../core/users.store';
 import { PriorityPickerComponent } from '../../shared/priority-picker.component';
 import { StatusLabelPipe } from '../../shared/status-label.pipe';
+import { FieldErrorsComponent } from './field-errors.component';
+import { emptyTicketModel, ticketSchema, toDraft, toFormModel } from './ticket-form.model';
 
-/** Walidator krzyżowy: krytyczne zgłoszenie musi mieć termin i osobę przypisaną. */
-function criticalNeedsOwner(group: AbstractControl): ValidationErrors | null {
-  const priority = group.get('priority')?.value;
-  const assigneeId = group.get('assigneeId')?.value;
-  const dueDate = group.get('dueDate')?.value;
-  return priority === 'critical' && (!assigneeId || !dueDate) ? { criticalNeedsOwner: true } : null;
+function optionalNumber(v: unknown): number | undefined {
+  return v === undefined || v === null || v === '' ? undefined : Number(v);
 }
 
 @Component({
   selector: 'app-ticket-form',
   templateUrl: './ticket-form.component.html',
-  imports: [ReactiveFormsModule, PriorityPickerComponent, RouterLink, StatusLabelPipe],
+  imports: [RouterLink, FormField, FormRoot, PriorityPickerComponent, StatusLabelPipe, FieldErrorsComponent],
 })
-export class TicketFormComponent implements OnInit, OnDestroy {
-  private fb = inject(FormBuilder);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private api = inject(TicketsApiService);
-  private usersApi = inject(UsersApiService);
-  private toast = inject(ToastService);
-  private duplicateTitle = inject(DuplicateTitleValidator);
+export class TicketFormComponent {
+  /** :id z routera; brak przy /tickets/new. */
+  readonly id = input(undefined, { transform: optionalNumber });
 
-  form!: FormGroup;
-  // Ćw. 5: pola zmieniane w subscribe jako sygnały.
-  protected readonly users = signal<User[]>([]);
-  protected readonly editedId = signal<number | null>(null);
-  protected readonly saving = signal(false);
-  statuses = STATUSES;
+  private readonly api = inject(TicketsApiService);
+  private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
+  protected readonly users = inject(UsersStore);
+  protected readonly statuses = STATUSES;
+
+  protected readonly existing = httpResource<Ticket>(() => (this.id() ? `/api/tickets/${this.id()}` : undefined));
+
+  /** Ćw. 8: model resetuje się po wczytaniu danych (linkedSignal), a formularz może go zmieniać. Zamiast patchValue. */
+  protected readonly model = linkedSignal(() => (this.existing.hasValue() ? toFormModel(this.existing.value()) : emptyTicketModel()));
+
   private saved = false;
-  private destroy$ = new Subject<void>();
 
-  get tags(): FormArray {
-    return this.form.get('tags') as FormArray;
-  }
-
-  ngOnInit(): void {
-    this.form = this.fb.group(
-      {
-        title: [
-          '',
-          [Validators.required, Validators.minLength(5), Validators.maxLength(80)],
-          [this.duplicateTitle.validate.bind(this.duplicateTitle)],
-        ],
-        description: ['', [Validators.required, Validators.minLength(10)]],
-        status: ['open'],
-        priority: ['medium', Validators.required],
-        assigneeId: [null as number | null],
-        reporterEmail: ['', [Validators.required, Validators.email]],
-        dueDate: [null as string | null],
-        notifyReporter: [true],
-        tags: this.fb.array([]),
+  protected readonly ticketForm = form(this.model, ticketSchema(this.id), {
+    submission: {
+      action: async (f) => {
+        const { notifyReporter } = f().value();
+        const draft = toDraft(f().value());
+        const id = this.id();
+        // Nie zapisujemy edycji, jeśli dane zgłoszenia się nie wczytały (nadpisalibyśmy je pustym formularzem).
+        if (id && !this.existing.hasValue()) return { kind: 'notLoaded', message: 'Dane zgłoszenia nie zostały wczytane', fieldTree: f };
+        try {
+          const ticket = await firstValueFrom(id ? this.api.update(id, draft) : this.api.create(draft));
+          this.saved = true;
+          this.toast.show(notifyReporter ? 'Zapisano, wysłano powiadomienie' : 'Zapisano');
+          await this.router.navigate(['/tickets', ticket.id]);
+          return undefined;
+        } catch {
+          this.toast.show('Błąd zapisu', 'error');
+          return { kind: 'server', message: 'Serwer odrzucił zapis', fieldTree: f };
+        }
       },
-      { validators: criticalNeedsOwner },
-    );
+    },
+  });
 
-    // Pole "notifyReporter" ma sens tylko, gdy jest e-mail: ręczne enable/disable.
-    this.form
-      .get('reporterEmail')!
-      .valueChanges.pipe(takeUntil(this.destroy$))
-      .subscribe((email: string) => {
-        const ctrl = this.form.get('notifyReporter')!;
-        if (email) ctrl.enable({ emitEvent: false });
-        else ctrl.disable({ emitEvent: false });
-      });
+  protected readonly heading = computed(() => (this.id() ? `Edycja zgłoszenia #${this.id()}` : 'Nowe zgłoszenie'));
 
-    this.usersApi.getAll().subscribe((u) => this.users.set(u));
-
-    this.route.paramMap
-      .pipe(
-        filter((p) => p.has('id')),
-        switchMap((p) => {
-          const id = Number(p.get('id'));
-          this.editedId.set(id);
-          this.duplicateTitle.excludeId = id;
-          return this.api.get(id);
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((ticket) => this.patch(ticket));
+  protected addTag(): void {
+    this.ticketForm.tags().value.update((tags) => [...tags, '']);
   }
 
-  private patch(ticket: Ticket): void {
-    this.tags.clear();
-    ticket.tags.forEach((t) => this.tags.push(new FormControl(t, Validators.required)));
-    this.form.patchValue(ticket);
-    this.form.markAsPristine();
-  }
-
-  addTag(): void {
-    this.tags.push(new FormControl('', Validators.required));
-  }
-
-  removeTag(i: number): void {
-    this.tags.removeAt(i);
+  protected removeTag(index: number): void {
+    this.ticketForm.tags().value.update((tags) => tags.filter((_, i) => i !== index));
   }
 
   hasUnsavedChanges(): boolean {
-    return this.form.dirty && !this.saved;
-  }
-
-  submit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-    this.saving.set(true);
-    const { notifyReporter, ...draft } = this.form.getRawValue() as TicketDraft & {
-      notifyReporter: boolean;
-    };
-    const id = this.editedId();
-    const request$ = id ? this.api.update(id, draft) : this.api.create(draft);
-    request$.subscribe({
-      next: (t) => {
-        this.saved = true;
-        this.saving.set(false);
-        this.toast.show(notifyReporter ? 'Zapisano, wysłano powiadomienie' : 'Zapisano');
-        this.router.navigate(['/tickets', t.id]);
-      },
-      error: () => {
-        this.saving.set(false);
-        this.toast.show('Błąd zapisu', 'error');
-      },
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    return this.ticketForm().dirty() && !this.saved;
   }
 }
